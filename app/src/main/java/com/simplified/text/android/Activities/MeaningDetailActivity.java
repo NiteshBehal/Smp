@@ -19,9 +19,8 @@ import com.simplified.text.android.R;
 import com.simplified.text.android.models.MeaningModel;
 import com.simplified.text.android.models.Pronunciations;
 import com.simplified.text.android.models.Result;
+import com.simplified.text.android.utils.AppUtils;
 import com.simplified.text.android.utils.BlurBuilder;
-
-import java.util.Collections;
 
 import io.realm.OrderedCollectionChangeSet;
 import io.realm.OrderedRealmCollectionChangeListener;
@@ -83,7 +82,8 @@ public class MeaningDetailActivity extends AppCompatActivity {
 
 
     private void setMeanings() {
-        tvTitle.setText(mMeaningModel.word);
+
+        tvTitle.setText(AppUtils.toTitleCase(mMeaningModel.word));
 
         if (mMeaningModel.results != null && mMeaningModel.results.size() > 0) {
             LayoutInflater vi = (LayoutInflater) getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);

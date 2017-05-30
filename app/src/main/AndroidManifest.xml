@@ -26,6 +26,11 @@
             android:screenOrientation="portrait">
 
         </activity>
+        <activity
+            android:name=".Activities.SearchPopup"
+            android:launchMode="singleInstance"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Translucent"></activity>
 
         <service android:name=".Services.CBWatcherService" />
 

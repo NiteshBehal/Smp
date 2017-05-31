@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Simplified Text</string>
+
+    <string name="snackbar_item_deleted">%1$s deleted</string>
+    <string name="snackbar_undo_item_deleted">Undo</string>
+
 </resources>

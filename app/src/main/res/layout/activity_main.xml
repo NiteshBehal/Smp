@@ -26,26 +26,56 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <TextView
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="?android:actionBarSize"
+            android:layout_height="?actionBarSize"
             android:background="#fff"
-            android:gravity="center"
-            android:text="Simplified Text"
-            android:textColor="#000000"
-            android:textSize="15dp"
-            android:textStyle="bold" />
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_child_meaning_clear"
+                android:layout_width="0dp"
+                android:layout_height="?android:actionBarSize"
+                android:layout_weight="2"
+                android:visibility="invisible"
+                android:gravity="center"
+                android:text="Clear"
+                android:textColor="#99ff0000"
+                android:textSize="13dp" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="?android:actionBarSize"
+                android:layout_weight="6"
+                android:gravity="center"
+                android:text="Simplified Text"
+                android:textColor="#000000"
+                android:textSize="15dp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_child_meaning_edit_done"
+                android:layout_width="0dp"
+                android:layout_height="?android:actionBarSize"
+                android:layout_weight="2"
+                android:gravity="center"
+                android:text="Edit"
+                android:textColor="#990000ff"
+                android:textSize="13dp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
 
         <Switch
-            android:text="Enable search notification"
-            android:backgroundTint="#ffffff"
-            android:drawablePadding="10dp"
-            android:textColor="#ffffff"
-            android:padding="10dp"
+            android:id="@+id/sw_enable_notification_search"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/sw_enable_notification_search"
-            />
+            android:backgroundTint="#ffffff"
+            android:drawablePadding="10dp"
+            android:padding="10dp"
+            android:text="Enable search notification"
+            android:textColor="#ffffff" />
 
         <ListView
             android:id="@+id/lv_meaning_list"

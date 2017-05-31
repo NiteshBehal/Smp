@@ -5,9 +5,6 @@ import android.text.Spanned;
 
 import java.net.URL;
 
-/**
- * Created by pbadmin on 27/5/17.
- */
 public class HtmlUtil {
     @SuppressWarnings("deprecation")
     public static Spanned fromHtml(String html) {

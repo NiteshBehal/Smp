@@ -11,11 +11,13 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RemoteViews;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import com.simplified.text.android.R;
 import com.simplified.text.android.Services.CBWatcherService;
@@ -32,7 +34,7 @@ import io.realm.OrderedRealmCollectionChangeListener;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Realm realm;
     private Activity mActivity;
@@ -41,6 +43,9 @@ public class MainActivity extends AppCompatActivity {
     private MeaningListAdapter meaningAdapter;
     private RealmResults<MeaningModel> result;
     private Switch swNotiSearch;
+
+    private TextView tvEdit, tvClearAll;
+    private boolean isInEditMode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,19 +64,28 @@ public class MainActivity extends AppCompatActivity {
     private void prepareViews() {
         lvMeaningList = (ListView) findViewById(R.id.lv_meaning_list);
         swNotiSearch = (Switch) findViewById(R.id.sw_enable_notification_search);
+
+
+        tvClearAll = (TextView) findViewById(R.id.tv_child_meaning_clear);
+        tvEdit = (TextView) findViewById(R.id.tv_child_meaning_edit_done);
+
+        tvClearAll.setOnClickListener(this);
+        tvEdit.setOnClickListener(this);
+
+
+        meaningAdapter = new MeaningListAdapter(mActivity, meaningList);
+        lvMeaningList.setAdapter(meaningAdapter);
+
         swNotiSearch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if (b) {
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if (isChecked) {
                     generateStickyNotification();
                 } else {
                     removeStickyNotification();
                 }
             }
         });
-
-        meaningAdapter = new MeaningListAdapter(mActivity, meaningList);
-        lvMeaningList.setAdapter(meaningAdapter);
     }
 
 
@@ -112,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void removeStickyNotification() {
-        NotificationManager notifManager= (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager notifManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notifManager.cancel(55);
     }
 
@@ -149,4 +163,24 @@ public class MainActivity extends AppCompatActivity {
         notificationManager.notify(notification_id, builder.build());
     }
 
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.tv_child_meaning_clear:
+
+                break;
+            case R.id.tv_child_meaning_edit_done:
+                isInEditMode = !isInEditMode;
+                if (isInEditMode) {
+                    tvEdit.setText("Done");
+                } else {
+                    tvEdit.setText("Edit");
+                }
+                meaningAdapter.setEditMode(isInEditMode);
+                break;
+            default:
+                break;
+        }
+
+    }
 }

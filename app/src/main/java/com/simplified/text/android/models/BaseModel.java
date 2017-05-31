@@ -6,9 +6,7 @@ import java.io.Serializable;
 
 import io.realm.annotations.Ignore;
 
-/**
- * Created by pbadmin on 31/3/17.
- */
+
 public class BaseModel implements Serializable {
 
     @Ignore

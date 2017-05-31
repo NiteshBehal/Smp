@@ -27,9 +27,7 @@ import io.realm.OrderedRealmCollectionChangeListener;
 import io.realm.Realm;
 import io.realm.RealmResults;
 
-/**
- * Created by pbadmin on 27/5/17.
- */
+
 public class MeaningDetailActivity extends AppCompatActivity {
 
     public static final String WORD_KEY = "WORD_KEY";

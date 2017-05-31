@@ -10,12 +10,22 @@
 
 
     <LinearLayout
-        android:elevation="8dp"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/curv_bg_more_white"
+        android:elevation="8dp"
         android:orientation="horizontal"
-        android:padding="10dp">
+        android:paddingBottom="10dp"
+        android:paddingLeft="10dp"
+        android:paddingTop="10dp">
+
+        <ImageView
+            android:layout_width="0dp"
+            android:visibility="gone"
+            android:layout_height="match_parent"
+            android:paddingRight="10dp"
+            android:id="@+id/iv_child_meaning_list_delete"
+            android:src="@drawable/delete" />
 
         <LinearLayout
             android:layout_width="0dp"
@@ -63,9 +73,11 @@
         </LinearLayout>
 
         <ImageView
-            android:layout_width="wrap_content"
+            android:id="@+id/iv_child_meaning_list_next"
+            android:layout_width="35dp"
             android:layout_height="match_parent"
-            android:layout_marginLeft="3dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
             android:src="@drawable/next" />
 
     </LinearLayout>

@@ -9,9 +9,6 @@ import com.simplified.text.android.R;
 import com.simplified.text.android.widgets.OwlView;
 
 
-/**
- * Created by pbadmin on 30/5/17.
- */
 
 public class SearchPopup extends AppCompatActivity {
 

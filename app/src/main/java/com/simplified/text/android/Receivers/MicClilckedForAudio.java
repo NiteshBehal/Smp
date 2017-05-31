@@ -9,9 +9,6 @@ import android.widget.Toast;
 
 import java.io.IOException;
 
-/**
- * Created by pbadmin on 27/5/17.
- */
 public class MicClilckedForAudio extends BroadcastReceiver {
     private MediaPlayer mediaPlayer;
 

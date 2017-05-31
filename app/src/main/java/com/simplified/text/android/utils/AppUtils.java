@@ -16,9 +16,7 @@ import android.widget.TextView;
 import com.simplified.text.android.R;
 
 
-/**
- * Created by nitesh.behal on 8/28/2015.
- */
+
 public class AppUtils {
     private static boolean showLog = false;
 
@@ -84,6 +82,7 @@ public class AppUtils {
         final float scale = context.getResources().getDisplayMetrics().density;
         return dp * scale + 0.5f;
     }
+
 
 
     /**

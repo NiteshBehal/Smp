@@ -1,8 +1,6 @@
 package com.simplified.text.android.core;
 
-/**
- * Created by pbadmin on 31/3/17.
- */
+
 public class URLConstants {
 
     public static final String BASE_URL = "http://kindsouls.net/service";

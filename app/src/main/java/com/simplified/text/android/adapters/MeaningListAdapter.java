@@ -24,6 +24,7 @@ import com.simplified.text.android.utils.ResizeWidthAnimation;
 import java.util.List;
 
 import io.realm.Realm;
+import io.realm.RealmModel;
 import io.realm.RealmResults;
 
 public class MeaningListAdapter extends BaseAdapter {
@@ -33,7 +34,7 @@ public class MeaningListAdapter extends BaseAdapter {
     private ViewHolder holder;
     private boolean isInEditMode = false;
     private boolean isAnimating = false;
-    private int mLastDeletedPosition =-1;
+    private int mLastDeletedPosition = -1;
     private MeaningModel mLastDeletedMeaning = null;
 
     public MeaningListAdapter(Activity activity, List<MeaningModel> meaningList) {
@@ -208,15 +209,16 @@ public class MeaningListAdapter extends BaseAdapter {
 //                if(mLastDeletedPosition!=position) {
 
 
-                    ValueAnimator anim = ValueAnimator.ofInt(view.getMeasuredHeight(), 0);
-                    anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                        @Override
-                        public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                            int val = (Integer) valueAnimator.getAnimatedValue();
-                            ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
-                            layoutParams.height = val;
-                            view.setLayoutParams(layoutParams);
-                            if (val == 0) {
+                ValueAnimator anim = ValueAnimator.ofInt(view.getMeasuredHeight(), 0);
+                anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                        int val = (Integer) valueAnimator.getAnimatedValue();
+                        ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
+                        layoutParams.height = val;
+                        view.setLayoutParams(layoutParams);
+                        if (val == 0) {
+                            try {
                                 if (mLastDeletedMeaning != null) {
                                     deleteMeaningFromDb(mLastDeletedMeaning);
                                 }
@@ -225,11 +227,14 @@ public class MeaningListAdapter extends BaseAdapter {
                                 mMeaningList.remove(position);
                                 notifyDataSetChanged();
                                 showSnackbar(parent.getRootView(), mLastDeletedMeaning.word);
+                            } catch (Exception ex) {
+//                                    ex.printStackTrace();
                             }
                         }
-                    });
-                    anim.setDuration(200);
-                    anim.start();
+                    }
+                });
+                anim.setDuration(200);
+                anim.start();
 
 //                }
             }
@@ -289,14 +294,24 @@ public class MeaningListAdapter extends BaseAdapter {
         if (mLastDeletedMeaning != null) {
             Realm realm = Realm.getDefaultInstance();
             final RealmResults<MeaningModel> results = realm.where(MeaningModel.class).equalTo("word", word.word).findAll();
-            realm.executeTransaction(new Realm.Transaction() {
+            realm.beginTransaction();
+            results.deleteFirstFromRealm();
+            realm.commitTransaction();
+
+            mLastDeletedMeaning = null;
+            mLastDeletedPosition = -1;
+            /*realm.executeTransaction(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {
+//                    realm.getSchema().remove("MeaningModel");
+                    realm.beginTransaction();
                     results.deleteFirstFromRealm();
+                    realm.commitTransaction();
+
                     mLastDeletedMeaning = null;
                     mLastDeletedPosition = -1;
                 }
-            });
+            });*/
         }
 
     }

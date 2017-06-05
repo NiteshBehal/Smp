@@ -33,6 +33,7 @@ import io.realm.OrderedCollectionChangeSet;
 import io.realm.OrderedRealmCollectionChangeListener;
 import io.realm.Realm;
 import io.realm.RealmResults;
+import io.realm.Sort;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -104,6 +105,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
        /* result = realm.where(MeaningModel.class)
                 .findAllAsync();
         result.addChangeListener(callback);*/
+        /*result = realm.where(MeaningModel.class)
+                .findAllSorted("index", Sort.DESCENDING);*/
 
         result = realm.where(MeaningModel.class)
                 .findAll();

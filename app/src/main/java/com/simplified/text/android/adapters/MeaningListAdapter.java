@@ -33,7 +33,7 @@ public class MeaningListAdapter extends BaseAdapter {
     private ViewHolder holder;
     private boolean isInEditMode = false;
     private boolean isAnimating = false;
-    private int mLastDeletedPosition = 0;
+    private int mLastDeletedPosition =-1;
     private MeaningModel mLastDeletedMeaning = null;
 
     public MeaningListAdapter(Activity activity, List<MeaningModel> meaningList) {
@@ -204,31 +204,34 @@ public class MeaningListAdapter extends BaseAdapter {
         holder.ivDelete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View nview) {
+                nview.setOnClickListener(null);
+//                if(mLastDeletedPosition!=position) {
 
-                ValueAnimator anim = ValueAnimator.ofInt(view.getMeasuredHeight(), 0);
-                anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                    @Override
-                    public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                        int val = (Integer) valueAnimator.getAnimatedValue();
-                        ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
-                        layoutParams.height = val;
-                        view.setLayoutParams(layoutParams);
-                        if (val == 0) {
-                            if (mLastDeletedMeaning != null) {
-                                deleteMeaningFromDb(mLastDeletedMeaning);
+
+                    ValueAnimator anim = ValueAnimator.ofInt(view.getMeasuredHeight(), 0);
+                    anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                        @Override
+                        public void onAnimationUpdate(ValueAnimator valueAnimator) {
+                            int val = (Integer) valueAnimator.getAnimatedValue();
+                            ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
+                            layoutParams.height = val;
+                            view.setLayoutParams(layoutParams);
+                            if (val == 0) {
+                                if (mLastDeletedMeaning != null) {
+                                    deleteMeaningFromDb(mLastDeletedMeaning);
+                                }
+                                mLastDeletedPosition = position;
+                                mLastDeletedMeaning = meaningModel;
+                                mMeaningList.remove(position);
+                                notifyDataSetChanged();
+                                showSnackbar(parent.getRootView(), mLastDeletedMeaning.word);
                             }
-                            mLastDeletedPosition = position;
-                            mLastDeletedMeaning = meaningModel;
-                            mMeaningList.remove(position);
-                            notifyDataSetChanged();
-                            showSnackbar(parent.getRootView(), meaningModel.word);
                         }
-                    }
-                });
-                anim.setDuration(300);
-                anim.start();
+                    });
+                    anim.setDuration(200);
+                    anim.start();
 
-
+//                }
             }
 
 
@@ -258,7 +261,7 @@ public class MeaningListAdapter extends BaseAdapter {
                     public void onClick(View v) {
                         if (mLastDeletedMeaning != null) {
                             mMeaningList.add(mLastDeletedPosition, mLastDeletedMeaning);
-                            mLastDeletedPosition = 0;
+                            mLastDeletedPosition = -1;
                             mLastDeletedMeaning = null;
                             notifyDataSetChanged();
                         }
@@ -284,26 +287,14 @@ public class MeaningListAdapter extends BaseAdapter {
 
     private void deleteMeaningFromDb(final MeaningModel word) {
         if (mLastDeletedMeaning != null) {
-//            Log.d(">>>>>", word.word);
-
-
-            // obtain the results of a query
             Realm realm = Realm.getDefaultInstance();
-            final RealmResults<MeaningModel> results = realm.where(MeaningModel.class).findAll();
-
-// All changes to data must happen in a transaction
+            final RealmResults<MeaningModel> results = realm.where(MeaningModel.class).equalTo("word", word.word).findAll();
             realm.executeTransaction(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {
                     results.deleteFirstFromRealm();
-                   /* results.deleteLastFromRealm();
-
-                    // remove a single object
-                    Dog dog = results.get(5);
-                    dog.deleteFromRealm();
-
-                    // Delete all matches
-                    results.deleteAllFromRealm();*/
+                    mLastDeletedMeaning = null;
+                    mLastDeletedPosition = -1;
                 }
             });
         }

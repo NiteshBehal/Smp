@@ -101,12 +101,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onStart() {
         super.onStart();
-        result = realm.where(MeaningModel.class)
+       /* result = realm.where(MeaningModel.class)
                 .findAllAsync();
-        result.addChangeListener(callback);
+        result.addChangeListener(callback);*/
+
+        result = realm.where(MeaningModel.class)
+                .findAll();
+        if (result != null && result.size() > 0) {
+            meaningList.clear();
+            meaningList.addAll(result);
+            Collections.reverse(meaningList);
+            meaningAdapter.notifyDataSetChanged();
+        }
+
+
     }
 
-    private OrderedRealmCollectionChangeListener<RealmResults<MeaningModel>> callback = new OrderedRealmCollectionChangeListener<RealmResults<MeaningModel>>() {
+    /*private OrderedRealmCollectionChangeListener<RealmResults<MeaningModel>> callback = new OrderedRealmCollectionChangeListener<RealmResults<MeaningModel>>() {
         @Override
         public void onChange(RealmResults<MeaningModel> meaningModels, OrderedCollectionChangeSet changeSet) {
             if (meaningModels != null && meaningModels.size() > 0) {
@@ -116,12 +127,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 meaningAdapter.notifyDataSetChanged();
             }
         }
-    };
+    };*/
 
     @Override
     protected void onStop() {
         super.onStop();
-        result.removeAllChangeListeners();
+//        result.removeAllChangeListeners();
     }
 
 

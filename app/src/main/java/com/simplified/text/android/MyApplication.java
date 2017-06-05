@@ -6,6 +6,8 @@ import android.content.Intent;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.facebook.stetho.Stetho;
+import com.uphyca.stetho_realm.RealmInspectorModulesProvider;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -55,6 +57,15 @@ public class MyApplication extends Application {
         Realm.init(getApplicationContext());
         RealmConfiguration config = new RealmConfiguration.Builder().build();//.build();
         Realm.setDefaultConfiguration(config);
+
+
+        Stetho.initialize(
+                Stetho.newInitializerBuilder(this)
+                        .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
+                        .enableWebKitInspector(RealmInspectorModulesProvider.builder(this).build())
+                        .build());
+
+
     }
 
 

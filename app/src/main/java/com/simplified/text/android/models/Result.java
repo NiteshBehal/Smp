@@ -3,13 +3,15 @@ package com.simplified.text.android.models;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
-import io.realm.RealmList;
-import io.realm.RealmModel;
-import io.realm.annotations.RealmClass;
+public class Result implements Serializable {
 
-@RealmClass
-public class Result implements Serializable, RealmModel {
+    public String id;
+
+    @SerializedName("headword")
+    public String headword;
+
     @SerializedName("meaning")
     public String meaning;
 
@@ -17,7 +19,7 @@ public class Result implements Serializable, RealmModel {
     public String part_of_speech;
 
     @SerializedName("pronunciations")
-    public RealmList<Pronunciations> pronunciations;
+    public ArrayList<Pronunciations> pronunciations;
 
     @SerializedName("example")
     public Example example;

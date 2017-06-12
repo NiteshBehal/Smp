@@ -4,12 +4,10 @@ import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
-import io.realm.RealmModel;
-import io.realm.annotations.RealmClass;
-
-@RealmClass
-    public class Example implements Serializable, RealmModel
+    public class Example implements Serializable
     {
+        public String id;
+
         @SerializedName("example")
         public String example;
 

@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.simplified.text.android.Activities.MeaningDetailActivity;
 import com.simplified.text.android.R;
+import com.simplified.text.android.db.DBHelper;
 import com.simplified.text.android.models.MeaningModel;
 import com.simplified.text.android.models.Pronunciations;
 import com.simplified.text.android.models.Result;
@@ -23,9 +24,6 @@ import com.simplified.text.android.utils.ResizeWidthAnimation;
 
 import java.util.List;
 
-import io.realm.Realm;
-import io.realm.RealmModel;
-import io.realm.RealmResults;
 
 public class MeaningListAdapter extends BaseAdapter {
     private final List<MeaningModel> mMeaningList;
@@ -36,11 +34,14 @@ public class MeaningListAdapter extends BaseAdapter {
     private boolean isAnimating = false;
     private int mLastDeletedPosition = -1;
     private MeaningModel mLastDeletedMeaning = null;
+    private DBHelper dbHelper;
 
     public MeaningListAdapter(Activity activity, List<MeaningModel> meaningList) {
         mActivity = activity;
         mInflater = mActivity.getLayoutInflater();
         mMeaningList = meaningList;
+        dbHelper = new DBHelper(mActivity, DBHelper.DATABASE_NAME,
+                null, DBHelper.DATABASE_VERSION);
     }
 
     @Override
@@ -88,35 +89,40 @@ public class MeaningListAdapter extends BaseAdapter {
         holder.tvPartOfSpeech.setText("");
         holder.tvFirstMeaning.setText("");
 
-        for (Result result : meaningModel.results) {
-            if (TextUtils.isEmpty(result.meaning)) {
-                continue;
-            } else {
-                String partOfSpeech = "";
-                if (result.pronunciations != null && result.pronunciations.size() > 0) {
-                    for (Pronunciations pronunciations : result.pronunciations) {
-                        if (!TextUtils.isEmpty(pronunciations.ipa)) {
-                            partOfSpeech = "|" + pronunciations.ipa + "| ";
-                            if (!TextUtils.isEmpty(pronunciations.url)) {
+
+        if (meaningModel.results != null) {
+            for (Result result : meaningModel.results) {
+                if (TextUtils.isEmpty(result.meaning)) {
+                    continue;
+                } else {
+                    String partOfSpeech = "";
+                    if (result.pronunciations != null && result.pronunciations.size() > 0) {
+                        for (Pronunciations pronunciations : result.pronunciations) {
+                            if (!TextUtils.isEmpty(pronunciations.ipa)) {
+                                partOfSpeech = "|" + pronunciations.ipa + "| ";
+                                if (!TextUtils.isEmpty(pronunciations.url)) {
 //                                remoteViews.setImageViewResource(R.id.iv_play, R.drawable.mic);
 //                                remoteViews.setOnClickPendingIntent(R.id.iv_play,setClickIntent(pronunciations.url));
 
+                                }
+
+
+                                break;
                             }
-
-
-                            break;
                         }
                     }
-                }
-                if (!TextUtils.isEmpty(result.part_of_speech)) {
-                    partOfSpeech = partOfSpeech + result.part_of_speech;
-                }
+                    if (!TextUtils.isEmpty(result.part_of_speech)) {
+                        partOfSpeech = partOfSpeech + result.part_of_speech;
+                    }
 
-                holder.tvPartOfSpeech.setText(partOfSpeech);
-                holder.tvFirstMeaning.setText(result.meaning);
-                break;
+                    holder.tvPartOfSpeech.setText(partOfSpeech);
+                    holder.tvFirstMeaning.setText(result.meaning);
+                    break;
+                }
             }
         }
+
+
         holder.ivDelete.setVisibility(View.VISIBLE);
         holder.ivNext.setVisibility(View.VISIBLE);
         if (isAnimating) {
@@ -260,7 +266,7 @@ public class MeaningListAdapter extends BaseAdapter {
     private void showSnackbar(View rootView, final String word) {
         String message = mActivity.getString(R.string.snackbar_item_deleted,
                 word);
-        Snackbar.make(rootView, message, Snackbar.LENGTH_LONG)
+        Snackbar.make(rootView, message, 2900)
                 .setAction(R.string.snackbar_undo_item_deleted, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -287,20 +293,32 @@ public class MeaningListAdapter extends BaseAdapter {
 
 
             }
-        }, 3000);
+        }, 2900);
     }
 
-    private void deleteMeaningFromDb(final MeaningModel word) {
+    private void deleteMeaningFromDb(MeaningModel word) {
+
         if (mLastDeletedMeaning != null) {
+            dbHelper.getWritableDatabase();
+            dbHelper.CreateTable();
+            dbHelper.removeWord(word.id);
+
+            dbHelper.close();
+
+            mLastDeletedMeaning = null;
+            mLastDeletedPosition = -1;
+        }
+      /*  if (mLastDeletedMeaning != null) {
             Realm realm = Realm.getDefaultInstance();
             final RealmResults<MeaningModel> results = realm.where(MeaningModel.class).equalTo("word", word.word).findAll();
             realm.beginTransaction();
             results.deleteFirstFromRealm();
             realm.commitTransaction();
 
+
             mLastDeletedMeaning = null;
             mLastDeletedPosition = -1;
-            /*realm.executeTransaction(new Realm.Transaction() {
+            *//*realm.executeTransaction(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {
 //                    realm.getSchema().remove("MeaningModel");
@@ -311,8 +329,8 @@ public class MeaningListAdapter extends BaseAdapter {
                     mLastDeletedMeaning = null;
                     mLastDeletedPosition = -1;
                 }
-            });*/
-        }
+            });*//*
+        }*/
 
     }
 

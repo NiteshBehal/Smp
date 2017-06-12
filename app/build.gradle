@@ -1,5 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'realm-android'
 
 android {
     compileSdkVersion 25
@@ -23,12 +22,11 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile files('libs/gson-2.2.4.jar')
     compile 'com.mcxiaoke.volley:library:1.0.19'
     compile 'com.android.support:design:25.3.1'
-
-    compile 'com.facebook.stetho:stetho:1.4.1'
-    compile 'com.uphyca:stetho_realm:2.0.0'
+    compile 'com.github.devlight.navigationtabstrip:navigationtabstrip:1.0.4'
+    compile 'com.facebook.stetho:stetho:1.5.0'
+    compile 'com.android.support:recyclerview-v7:25.3.1'
 }

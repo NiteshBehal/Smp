@@ -4,11 +4,10 @@ import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
 
-import io.realm.RealmModel;
-import io.realm.annotations.RealmClass;
+public class Pronunciations implements Serializable {
 
-@RealmClass
-public class Pronunciations implements Serializable, RealmModel {
+    public String id;
+
     @SerializedName("ipa")
     public String ipa;
 

@@ -6,7 +6,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.TaskStackBuilder;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.RemoteViews;
@@ -16,11 +15,11 @@ import com.android.volley.Request;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.Volley;
 import com.simplified.text.android.Activities.MainActivity;
-import com.simplified.text.android.Activities.MeaningDetailActivity;
 import com.simplified.text.android.R;
 import com.simplified.text.android.core.CustomHttpRequest;
 import com.simplified.text.android.core.HttpResponseListener;
 import com.simplified.text.android.core.URLConstants;
+import com.simplified.text.android.db.DBHelper;
 import com.simplified.text.android.models.MeaningModel;
 import com.simplified.text.android.models.Pronunciations;
 import com.simplified.text.android.models.Result;
@@ -30,8 +29,8 @@ import com.simplified.text.android.utils.HtmlUtil;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import io.realm.Realm;
-import io.realm.RealmResults;
+import java.util.ArrayList;
+
 
 public class TextCopyReceiver extends BroadcastReceiver implements HttpResponseListener {
     public static final String CUSTOM_INTENT = "simplified.textcopied";
@@ -43,9 +42,14 @@ public class TextCopyReceiver extends BroadcastReceiver implements HttpResponseL
     private RemoteViews remoteViews, remoteViewsSmall;
     private Context mContext;
 
+    private DBHelper dbHelper;
+
     @Override
     public void onReceive(Context context, Intent intent) {
         mContext = context;
+        dbHelper = new DBHelper(mContext, DBHelper.DATABASE_NAME,
+                null, DBHelper.DATABASE_VERSION);
+
         if (intent.getAction().equals(CUSTOM_INTENT)) {
             String string = intent.getStringExtra(CUSTOM_INTENT).trim().toLowerCase();
             Log.d(">>>>>", string);
@@ -65,19 +69,46 @@ public class TextCopyReceiver extends BroadcastReceiver implements HttpResponseL
                     }
                 } else {
                     Toast.makeText(mContext, "Is string", Toast.LENGTH_SHORT).show();
+                    getPackageName();
                 }
             }
         }
     }
 
+    private void getPackageName() {
+        /*ActivityManager activityManager =  (ActivityManager)mContext.getSystemService(Context.ACTIVITY_SERVICE);
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP)
+        {
+            String packageName = activityManager.getRunningAppProcesses().get(0).processName;
+        }
+        else if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP)
+        {
+            String packageName = ProcessManager.getRunningForegroundApps(mContext.getApplicationContext()).get(0).getPackageName();
+        }
+        else
+        {
+            String packageName = activityManager.getRunningTasks(1).get(0).topActivity.getPackageName();
+
+        }*/
+    }
+
     private boolean wordExistsInRealm(String word) {
-        RealmResults<MeaningModel> result = Realm.getDefaultInstance().where(MeaningModel.class).equalTo("word", word)
-                .findAll();
-        if (result != null && result.size() > 0) {
-            generateNotification(result.get(0));
+
+        ArrayList<MeaningModel> meaningModels = new ArrayList<>();
+        dbHelper.getWritableDatabase();
+        dbHelper.CreateTable();
+        if (dbHelper.getWordMeaningList(word).size() > 0) {
+            meaningModels.addAll(dbHelper.getWordMeaningList(word));
+            ;
+
+        }
+        dbHelper.close();
+
+
+        if (meaningModels.size() > 0) {
+            generateNotification(meaningModels.get(0));
             return true;
         }
-
         return false;
     }
 
@@ -97,9 +128,7 @@ public class TextCopyReceiver extends BroadcastReceiver implements HttpResponseL
                 if (!meaningModel.error_code) {
                     generateNotification(meaningModel);
                     saveDataToDb(meaningModel);
-                }
-                else
-                {
+                } else {
                     Toast.makeText(mContext, "Unable to find meaning.", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -107,28 +136,12 @@ public class TextCopyReceiver extends BroadcastReceiver implements HttpResponseL
 
     }
 
-    private void saveDataToDb(final MeaningModel meaningModel) {
-        final Realm realm = Realm.getDefaultInstance();
-        realm.executeTransactionAsync(new Realm.Transaction() {
-            @Override
-            public void execute(Realm bgRealm) {
-                bgRealm.copyToRealmOrUpdate(meaningModel);
-            }
-        }, new Realm.Transaction.OnSuccess() {
-            @Override
-            public void onSuccess() {
+    private void saveDataToDb(MeaningModel meaningModel) {
 
-//                Toast.makeText(mContext, "Success", Toast.LENGTH_SHORT).show();
-                // Transaction was a success.
-            }
-        }, new Realm.Transaction.OnError() {
-            @Override
-            public void onError(Throwable error) {
-                error.printStackTrace();
-//                Toast.makeText(mContext, "Error", Toast.LENGTH_SHORT).show();
-                // Transaction failed and was automatically canceled.
-            }
-        });
+        dbHelper.getWritableDatabase();
+        dbHelper.CreateTable();
+        dbHelper.insertWordMeaning(meaningModel);
+        dbHelper.close();
 
     }
 

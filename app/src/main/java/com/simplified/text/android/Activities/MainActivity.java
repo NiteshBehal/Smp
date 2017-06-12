@@ -22,31 +22,26 @@ import android.widget.TextView;
 import com.simplified.text.android.R;
 import com.simplified.text.android.Services.CBWatcherService;
 import com.simplified.text.android.adapters.MeaningListAdapter;
+import com.simplified.text.android.db.DBHelper;
 import com.simplified.text.android.models.MeaningModel;
 import com.simplified.text.android.utils.BlurBuilder;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import io.realm.OrderedCollectionChangeSet;
-import io.realm.OrderedRealmCollectionChangeListener;
-import io.realm.Realm;
-import io.realm.RealmResults;
-import io.realm.Sort;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private Realm realm;
+//    private Realm realm;
     private Activity mActivity;
     private List<MeaningModel> meaningList = new ArrayList<>();
     private ListView lvMeaningList;
     private MeaningListAdapter meaningAdapter;
-    private RealmResults<MeaningModel> result;
     private Switch swNotiSearch;
 
     private TextView tvEdit, tvClearAll;
     private boolean isInEditMode = false;
+    private DBHelper dbHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,9 +51,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         setWindowBg();
         startService(new Intent(this, CBWatcherService.class));
-        realm = Realm.getDefaultInstance();
+        dbHelper = new DBHelper(mActivity, DBHelper.DATABASE_NAME,
+                null, DBHelper.DATABASE_VERSION);
         prepareViews();
-
 
     }
 
@@ -102,22 +97,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onStart() {
         super.onStart();
+        getMeaningListFromDb();
        /* result = realm.where(MeaningModel.class)
                 .findAllAsync();
         result.addChangeListener(callback);*/
         /*result = realm.where(MeaningModel.class)
                 .findAllSorted("index", Sort.DESCENDING);*/
 
-        result = realm.where(MeaningModel.class)
+       /* result = realm.where(MeaningModel.class)
                 .findAll();
         if (result != null && result.size() > 0) {
             meaningList.clear();
             meaningList.addAll(result);
             Collections.reverse(meaningList);
             meaningAdapter.notifyDataSetChanged();
+        }*/
+
+
+    }
+
+    private void getMeaningListFromDb() {
+        meaningList.clear();
+        dbHelper.getWritableDatabase();
+        dbHelper.CreateTable();
+        if(dbHelper.getWordMeaningList(null)!=null&&dbHelper.getWordMeaningList(null).size()>0)
+        {
+            meaningList.addAll(dbHelper.getWordMeaningList(null));
         }
 
-
+        dbHelper.close();
+        meaningAdapter.notifyDataSetChanged();
     }
 
     /*private OrderedRealmCollectionChangeListener<RealmResults<MeaningModel>> callback = new OrderedRealmCollectionChangeListener<RealmResults<MeaningModel>>() {

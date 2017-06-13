@@ -20,7 +20,7 @@ import com.simplified.text.android.models.MeaningModel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MeaningFragment extends Fragment implements DashbordActivityEventsListener {
+public class NotesFragment extends Fragment implements DashbordActivityEventsListener {
 
     private DBHelper dbHelper;
     private List<MeaningModel> meaningList = new ArrayList<>();
@@ -30,8 +30,8 @@ public class MeaningFragment extends Fragment implements DashbordActivityEventsL
     private RecyclerView rvMeaningList;
 
 
-    public static MeaningFragment newInstance(int page, String title) {
-        MeaningFragment fragmentFirst = new MeaningFragment();
+    public static NotesFragment newInstance(int page, String title) {
+        NotesFragment fragmentFirst = new NotesFragment();
         return fragmentFirst;
     }
 
@@ -49,12 +49,12 @@ public class MeaningFragment extends Fragment implements DashbordActivityEventsL
         mActivity = getActivity();
         dbHelper = new DBHelper(mActivity, DBHelper.DATABASE_NAME,
                 null, DBHelper.DATABASE_VERSION);
-        prepareViews();
+//        prepareViews();
 
 
     }
 
-    private void prepareViews() {
+   /* private void prepareViews() {
         rvMeaningList = (RecyclerView) mRootView.findViewById(R.id.rv_meaning_list);
 
         meaningAdapter = new MeaningRecylerListAdapter(mActivity, meaningList);
@@ -62,39 +62,35 @@ public class MeaningFragment extends Fragment implements DashbordActivityEventsL
         rvMeaningList.setLayoutManager(mLayoutManager);
         rvMeaningList.setItemAnimator(new DefaultItemAnimator());
         rvMeaningList.setAdapter(meaningAdapter);
-    }
+    }*/
 
     @Override
     public void onStart() {
         super.onStart();
-        getMeaningListFromDb();
+//        getMeaningListFromDb();
     }
 
-    private void getMeaningListFromDb() {
+ /*   private void getMeaningListFromDb() {
         meaningList.clear();
         dbHelper.getWritableDatabase();
         dbHelper.CreateTable();
-        if (dbHelper.getWordMeaningList(null) != null && dbHelper.getWordMeaningList(null).size() > 0) {
+        if(dbHelper.getWordMeaningList(null)!=null&&dbHelper.getWordMeaningList(null).size()>0)
+        {
             meaningList.addAll(dbHelper.getWordMeaningList(null));
         }
 
         dbHelper.close();
         meaningAdapter.notifyDataSetChanged();
 
-
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            lvMeaningList.setNestedScrollingEnabled(true);
-        }*/
-    }
+    }*/
 
     @Override
     public void isEditMode(boolean isEditable) {
-        meaningAdapter.isEditMode(isEditable);
+//        meaningAdapter.isEditMode(isEditable);
     }
 
     @Override
     public void pageChanged() {
-        // TODO: have to check if needed or not in any condition
 //        getMeaningListFromDb();
     }
 }

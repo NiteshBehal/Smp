@@ -3,8 +3,10 @@ package com.simplified.text.android.adapters;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.view.ViewGroup;
 
 import com.simplified.text.android.fragments.MeaningFragment;
+import com.simplified.text.android.fragments.NotesFragment;
 
 public class MyPagerAdapter extends FragmentPagerAdapter {
     private static int NUM_ITEMS = 2;
@@ -26,7 +28,7 @@ public class MyPagerAdapter extends FragmentPagerAdapter {
             case 0: // Fragment # 0 - This will show FirstFragment
                 return MeaningFragment.newInstance(0, "Page # 1");
             case 1: // Fragment # 0 - This will show FirstFragment different title
-                return MeaningFragment.newInstance(1, "Page # 2");
+                return NotesFragment.newInstance(1, "Page # 2");
             default:
                 return null;
         }
@@ -38,4 +40,8 @@ public class MyPagerAdapter extends FragmentPagerAdapter {
         return "Page " + position;
     }
 
+    @Override
+    public Object instantiateItem(ViewGroup container, int position) {
+        return super.instantiateItem(container, position);
+    }
 }

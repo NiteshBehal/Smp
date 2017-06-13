@@ -1,7 +1,8 @@
 package com.simplified.text.android.adapters;
 
-import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.os.Handler;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -14,6 +15,7 @@ import android.widget.TextView;
 import com.simplified.text.android.Activities.MeaningDetailActivity;
 import com.simplified.text.android.R;
 import com.simplified.text.android.db.DBHelper;
+import com.simplified.text.android.interfaces.DashbordActivityEventsListener;
 import com.simplified.text.android.models.MeaningModel;
 import com.simplified.text.android.models.Pronunciations;
 import com.simplified.text.android.models.Result;
@@ -23,16 +25,17 @@ import com.simplified.text.android.utils.ResizeWidthAnimation;
 import java.util.List;
 
 
-public class MeaningRecylerListAdapter extends RecyclerView.Adapter {
+public class MeaningRecylerListAdapter extends RecyclerView.Adapter implements DashbordActivityEventsListener {
     private final List<MeaningModel> mMeaningList;
     private Activity mActivity;
     private LayoutInflater mInflater;
-//    private RecyclerView.ViewHolder holder;
     private boolean isInEditMode = false;
     private boolean isAnimating = false;
     private int mLastDeletedPosition = -1;
     private MeaningModel mLastDeletedMeaning = null;
     private DBHelper dbHelper;
+    private Handler handler;
+    private View rootViewForSnakbar;
 
     public MeaningRecylerListAdapter(Activity activity, List<MeaningModel> meaningList) {
         mActivity = activity;
@@ -43,9 +46,15 @@ public class MeaningRecylerListAdapter extends RecyclerView.Adapter {
     }
 
     @Override
+    public int getItemCount() {
+        return mMeaningList.size();
+
+    }
+
+    @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.child_meaning_list, parent, false);
+        View itemView = mInflater.inflate(R.layout.child_meaning_list, parent, false);
+        rootViewForSnakbar = parent;
         return new ViewHolderListItem(itemView);
     }
 
@@ -69,11 +78,6 @@ public class MeaningRecylerListAdapter extends RecyclerView.Adapter {
                         for (Pronunciations pronunciations : result.pronunciations) {
                             if (!TextUtils.isEmpty(pronunciations.ipa)) {
                                 partOfSpeech = "|" + pronunciations.ipa + "| ";
-                                if (!TextUtils.isEmpty(pronunciations.url)) {
-//                                remoteViews.setImageViewResource(R.id.iv_play, R.drawable.mic);
-//                                remoteViews.setOnClickPendingIntent(R.id.iv_play,setClickIntent(pronunciations.url));
-
-                                }
                                 break;
                             }
                         }
@@ -177,40 +181,24 @@ public class MeaningRecylerListAdapter extends RecyclerView.Adapter {
             @Override
             public void onClick(View nview) {
                 nview.setOnClickListener(null);
-//                if(mLastDeletedPosition!=position) {
-
-
-                ValueAnimator anim = ValueAnimator.ofInt(view.getMeasuredHeight(), 0);
-                anim.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                    @Override
-                    public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                        int val = (Integer) valueAnimator.getAnimatedValue();
-                        ViewGroup.LayoutParams layoutParams = view.getLayoutParams();
-                        layoutParams.height = val;
-                        view.setLayoutParams(layoutParams);
-                        if (val == 0) {
-                            try {
-                                if (mLastDeletedMeaning != null) {
-//                                    deleteMeaningFromDb(mLastDeletedMeaning);
-                                }
-                                mLastDeletedPosition = itemPosition;
-                                mLastDeletedMeaning = meaningModel;
-                                mMeaningList.remove(itemPosition);
-                                notifyDataSetChanged();
-//                                showSnackbar(parent.getRootView(), mLastDeletedMeaning.word);
-                            } catch (Exception ex) {
-//                                    ex.printStackTrace();
-                            }
-                        }
+                try {
+                    if (mLastDeletedMeaning != null) {
+                        deleteMeaningFromDb(mLastDeletedMeaning);
                     }
-                });
-                anim.setDuration(200);
-                anim.start();
-
-//                }
+                    mLastDeletedPosition = itemPosition;
+                    mLastDeletedMeaning = meaningModel;
+                    mMeaningList.remove(mLastDeletedMeaning);
+                    notifyItemRemoved(mLastDeletedPosition);
+                    new Handler().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyDataSetChanged();
+                        }
+                    }, 500);
+                    showSnackbar(rootViewForSnakbar, mLastDeletedMeaning.word);
+                } catch (Exception ex) {
+                }
             }
-
-
         });
 
 
@@ -225,15 +213,11 @@ public class MeaningRecylerListAdapter extends RecyclerView.Adapter {
 
     }
 
-    @Override
-    public int getItemCount() {
-        return mMeaningList.size();
-    }
-
 
     private class ViewHolderListItem extends RecyclerView.ViewHolder {
         private TextView tvWord, tvPartOfSpeech, tvFirstMeaning;
         private ImageView ivDelete, ivNext;
+
         public ViewHolderListItem(View itemView) {
             super(itemView);
             tvWord = (TextView) itemView.findViewById(R.id
@@ -249,4 +233,77 @@ public class MeaningRecylerListAdapter extends RecyclerView.Adapter {
 
         }
     }
+
+
+    private void deleteMeaningFromDb(MeaningModel word) {
+
+        if (mLastDeletedMeaning != null) {
+            dbHelper.getWritableDatabase();
+            dbHelper.CreateTable();
+            dbHelper.removeWord(word.id);
+            dbHelper.close();
+
+            mLastDeletedMeaning = null;
+            mLastDeletedPosition = -1;
+        }
+    }
+
+    private void showSnackbar(View rootView, final String word) {
+        String message = mActivity.getString(R.string.snackbar_item_deleted,
+                word);
+        Snackbar.make(rootView, message, 2900)
+                .setAction(R.string.snackbar_undo_item_deleted, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mLastDeletedMeaning != null) {
+                            mMeaningList.add(mLastDeletedPosition, mLastDeletedMeaning);
+                            if (mLastDeletedPosition == 0 || mLastDeletedPosition == getItemCount() - 1) {
+                                ((RecyclerView) rootViewForSnakbar).scrollToPosition(mLastDeletedPosition);
+                            }
+                            notifyItemInserted(mLastDeletedPosition);
+                            mLastDeletedPosition = -1;
+                            mLastDeletedMeaning = null;
+                            new Handler().postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    notifyDataSetChanged();
+
+                                }
+                            }, 500);
+                        }
+                    }
+                }).show();
+
+        try {
+            handler.removeCallbacksAndMessages(null);
+        } catch (Exception ex) {
+        }
+
+        handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+
+                deleteMeaningFromDb(mLastDeletedMeaning);
+
+
+            }
+        }, 2900);
+    }
+
+
+    @Override
+    public void isEditMode(boolean isEditable) {
+        this.isInEditMode = isEditable;
+        notifyDataSetChanged();
+        isAnimating = true;
+
+    }
+
+    @Override
+    public void pageChanged() {
+
+    }
+
+
 }

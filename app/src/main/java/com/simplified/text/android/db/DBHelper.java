@@ -129,6 +129,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
+
     public void insertWordMeaning(MeaningModel meaningModel) {
 
 

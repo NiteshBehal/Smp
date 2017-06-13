@@ -44,12 +44,13 @@ public class CBWatcherService extends Service {
             if (cd.getDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN)) {
                 if (cd != null && cd.getItemAt(0) != null && !TextUtils.isEmpty(cd.getItemAt(0).getText()) && isFirstTime) {
                     handleDuplicity();
-                    sendBroadcast(cd.getItemAt(0).getText().toString());
+                    sendBroadcast(cd.getItemAt(0).getText().toString(), "false");
                 }
             } else if (cd.getDescription().hasMimeType(ClipDescription.MIMETYPE_TEXT_HTML)) {
                 if (cd != null && cd.getItemAt(0) != null && !TextUtils.isEmpty(cd.getItemAt(0).getHtmlText()) && isFirstTime) {
                     handleDuplicity();
-                    sendBroadcast(HtmlUtil.fromHtml(cd.getItemAt(0).getHtmlText()).toString());
+//                    sendBroadcast(HtmlUtil.fromHtml(cd.getItemAt(0).getHtmlText()).toString());
+                    sendBroadcast(cd.getItemAt(0).getHtmlText().toString(), "true");
 
                 }
             }
@@ -70,9 +71,10 @@ public class CBWatcherService extends Service {
     }
 
 
-    private void sendBroadcast(String string) {
+    private void sendBroadcast(String text, String isHtml) {
         Intent i = new Intent();
-        i.putExtra(TextCopyReceiver.TEXT_COPIED_KEY, string);
+        i.putExtra(TextCopyReceiver.TEXT_COPIED_KEY, text);
+        i.putExtra(TextCopyReceiver.TEXT_IS_HTML_KEY, isHtml);
         i.setAction(TextCopyReceiver.CUSTOM_INTENT);
         sendBroadcast(i);
     }

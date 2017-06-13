@@ -10,6 +10,7 @@ import android.text.TextUtils;
 
 import com.simplified.text.android.models.Example;
 import com.simplified.text.android.models.MeaningModel;
+import com.simplified.text.android.models.NotesModel;
 import com.simplified.text.android.models.Pronunciations;
 import com.simplified.text.android.models.Result;
 
@@ -31,6 +32,7 @@ public class DBHelper extends SQLiteOpenHelper {
     static String meaning_table = "meaningTable";
     static String pronunciation_table = "pronunciationsTable";
     static String example_table = "examplesTable";
+    static String notes_table = "notesTable";
 
 
     static String word_id = "wordId";
@@ -52,6 +54,12 @@ public class DBHelper extends SQLiteOpenHelper {
     static String example_id = "exampleId";
     static String example = "example";
     static String audio_url = "audioUrl";
+
+
+    static String notes_id = "notesId";
+    static String notes = "notes";
+    static String date = "date";
+    static String isHtml = "isHtml";
 
 
     /*static String product_id = "productId";
@@ -125,10 +133,21 @@ public class DBHelper extends SQLiteOpenHelper {
                 "TEXT, " + word_id +
                 " TEXT )");
 
+        dba.execSQL("Create table IF NOT EXISTS " + notes_table + "(" + notes_id + " INTEGER PRIMARY KEY AUTOINCREMENT " +
+                "NOT NULL,"
+                + notes + " TEXT, " + date + " TEXT, " + isHtml + " " +
+                "TEXT )");
+
 
     }
 
-
+    public void insertNotes(NotesModel notesModel) {
+        ContentValues notesTablevalues = new ContentValues();
+        notesTablevalues.put(notes, notesModel.notes);
+        notesTablevalues.put(date, notesModel.date);
+        notesTablevalues.put(isHtml, notesModel.isHtml);
+        dba.insert(notes_table, null, notesTablevalues);
+    }
 
     public void insertWordMeaning(MeaningModel meaningModel) {
 

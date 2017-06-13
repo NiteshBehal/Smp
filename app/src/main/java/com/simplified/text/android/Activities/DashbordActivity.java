@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.provider.Settings;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -43,6 +43,8 @@ public class DashbordActivity extends AppCompatActivity implements View.OnClickL
         initViews();
 
 
+
+
     }
 
     private void initViews() {
@@ -55,7 +57,7 @@ public class DashbordActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void setupPager() {
-      adapterViewPager = new MyPagerAdapter(getSupportFragmentManager());
+        adapterViewPager = new MyPagerAdapter(getSupportFragmentManager());
         vpPager.setAdapter(adapterViewPager);
         mTopNavigationTabStrip.setViewPager(vpPager);
 
@@ -70,9 +72,7 @@ public class DashbordActivity extends AppCompatActivity implements View.OnClickL
                 try {
                     getCurrentListener().pageChanged();
                     getCurrentListener().isEditMode(isInEditMode);
-                }
-                catch (Exception ex)
-                {
+                } catch (Exception ex) {
 
                 }
 
@@ -114,8 +114,7 @@ public class DashbordActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
-    private DashbordActivityEventsListener getCurrentListener()
-    {
+    private DashbordActivityEventsListener getCurrentListener() {
         return (DashbordActivityEventsListener) adapterViewPager.instantiateItem(vpPager, vpPager.getCurrentItem());
     }
 

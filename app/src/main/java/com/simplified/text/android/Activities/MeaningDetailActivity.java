@@ -37,9 +37,11 @@ public class MeaningDetailActivity extends AppCompatActivity {
     private LinearLayout llScrollChild;
     private ActionMode mActionMode;
 
-    public static void open(Activity activity, String word) {
+    public static void open(Activity activity, MeaningModel word) {
         Intent intent = new Intent(activity, MeaningDetailActivity.class);
-        intent.putExtra(WORD_KEY, word);
+        Bundle bundle = new Bundle();
+        bundle.putSerializable(WORD_KEY, word);
+        intent.putExtras(bundle);
         activity.startActivity(intent);
     }
 
@@ -52,31 +54,16 @@ public class MeaningDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_meaning_details_activity);
         setWindowBg();
         prepareViews();
-        getMeaningFromDb(getIntent().getStringExtra(WORD_KEY));
+        mMeaningModel = (MeaningModel) getIntent().getSerializableExtra(WORD_KEY);
+        setMeanings();
+
     }
     private void prepareViews() {
         tvTitle = (TextView) findViewById(R.id.tv_title);
         llScrollChild = (LinearLayout) findViewById(R.id.ll_meaing_container);
     }
 
-    private void getMeaningFromDb(String word) {
-        /*RealmResults<MeaningModel> result = Realm.getDefaultInstance().where(MeaningModel.class).equalTo("word", word)
-                .findAllAsync();
-        result.addChangeListener(callback);*/
-       /* if (result != null && result.size() > 0) {
 
-        }*/
-    }
-
-   /* private OrderedRealmCollectionChangeListener<RealmResults<MeaningModel>> callback = new OrderedRealmCollectionChangeListener<RealmResults<MeaningModel>>() {
-        @Override
-        public void onChange(RealmResults<MeaningModel> meaningModels, OrderedCollectionChangeSet changeSet) {
-            if (meaningModels != null && meaningModels.size() > 0) {
-                mMeaningModel = meaningModels.get(0);
-                setMeanings();
-            }
-        }
-    };*/
 
 
 
@@ -97,14 +84,6 @@ public class MeaningDetailActivity extends AppCompatActivity {
                     tvPos.setText(meaning.part_of_speech);
                 }
                 TextView tvMeaning = (TextView) meaningParent.findViewById(R.id.tv_detail_meaning);
-
-                /*tvMeaning.setOnLongClickListener(new View.OnLongClickListener() {
-                    @Override
-                    public boolean onLongClick(View v) {
-                        mActionMode = mActivity.startActionMode(new ActionBarCallbacks());
-                        return true;
-                    }
-                });*/
 
                 tvMeaning.setCustomSelectionActionModeCallback(new ActionBarCallbacks());
 

@@ -253,7 +253,7 @@ public class MeaningListAdapter extends BaseAdapter {
             @Override
             public void onClick(View view) {
                 if (!isInEditMode) {
-                    MeaningDetailActivity.open(mActivity, meaningModel.word);
+                    MeaningDetailActivity.open(mActivity, meaningModel);
                 }
             }
         });

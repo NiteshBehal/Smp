@@ -17,6 +17,7 @@ import java.util.Set;
 public class SharedPreferenceManager {
 
     public static final String OPEN_NOTIFICATION_FRAGMENT = "OPEN_NOTIFICATION_FRAGMENT";
+    public static final String HIGHLIGHTER_COLOR = "HIGHLIGHTER_COLOR";
     private String sharedPrefsFile = BuildConfig.APPLICATION_ID;
     private Editor mEditor;
     private SharedPreferences mPreferences;

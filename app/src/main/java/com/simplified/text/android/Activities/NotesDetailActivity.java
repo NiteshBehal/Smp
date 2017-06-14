@@ -3,6 +3,7 @@ package com.simplified.text.android.Activities;
 import android.app.Activity;
 import android.app.WallpaperManager;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -22,9 +24,13 @@ import com.simplified.text.android.R;
 import com.simplified.text.android.models.NotesModel;
 import com.simplified.text.android.utils.BlurBuilder;
 import com.simplified.text.android.utils.HtmlUtil;
+import com.simplified.text.android.utils.SharedPreferenceManager;
+import com.simplified.text.android.widgets.ColorPickerDialog;
+
+import java.util.ArrayList;
 
 
-public class NotesDetailActivity extends AppCompatActivity {
+public class NotesDetailActivity extends AppCompatActivity implements View.OnClickListener {
 
     public static final String NOTE_KEY = "NOTE_KEY";
     private Activity mActivity;
@@ -35,6 +41,9 @@ public class NotesDetailActivity extends AppCompatActivity {
     private WebView wvWebView;
     private TextView tvNote, tvDate;
     private LinearLayout llwvParent;
+    private ImageView ivEditHighlighter;
+    private ArrayList<Integer> closestColorsList = new ArrayList<>();
+    private SharedPreferenceManager sharedPreferenceManager;
 
 
 //    private ActionMode mActionMode;
@@ -52,21 +61,39 @@ public class NotesDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getSupportActionBar().hide();
-        mActivity = this;
         setContentView(R.layout.activity_notes_details_activity);
+        mActivity = this;
+        sharedPreferenceManager = new SharedPreferenceManager(mActivity, null);
         setWindowBg();
+
+        setHighlighterColors();
         prepareViews();
         mNoteModel = (NotesModel) getIntent().getSerializableExtra(NOTE_KEY);
         setNotes();
 
     }
 
+    private void setHighlighterColors() {
+        closestColorsList.clear();
+        closestColorsList.add(Color.parseColor("#CCe67e22"));
+        closestColorsList.add(Color.parseColor("#F1C40F"));
+        closestColorsList.add(Color.parseColor("#CC2ecc71"));
+        closestColorsList.add(Color.parseColor("#990DD5FC"));
+        closestColorsList.add(Color.parseColor("#99FF0099"));
+        closestColorsList.add(Color.parseColor("#996E0DD0"));
+        if(sharedPreferenceManager.getInt(SharedPreferenceManager.HIGHLIGHTER_COLOR,0)==0)
+        {
+            sharedPreferenceManager.setInt(SharedPreferenceManager.HIGHLIGHTER_COLOR,closestColorsList.get(0));
+        }
+    }
+
     private void prepareViews() {
         tvTitle = (TextView) findViewById(R.id.tv_title);
+        ivEditHighlighter = (ImageView) findViewById(R.id.iv_edit_highlighter_color);
 
         wvWebView = (WebView) findViewById(R.id.wv_notes_details_webview);
         svParentScroll = (ScrollView) findViewById(R.id.sv_notes_details_scroll);
-        llwvParent = (LinearLayout)findViewById(R.id.ll_notes_details_webview);
+        llwvParent = (LinearLayout) findViewById(R.id.ll_notes_details_webview);
 
         tvNote = (TextView) findViewById(R.id
                 .tv_child_note_list_note);
@@ -76,8 +103,13 @@ public class NotesDetailActivity extends AppCompatActivity {
         WebSettings settings = wvWebView.getSettings();
         settings.setJavaScriptEnabled(true);
 
+        ivEditHighlighter.setOnClickListener(this);
+        setHeighlightImageColor();
 
+    }
 
+    private void setHeighlightImageColor() {
+        ivEditHighlighter.setColorFilter(sharedPreferenceManager.getInt(SharedPreferenceManager.HIGHLIGHTER_COLOR,0));
     }
 
 
@@ -95,11 +127,6 @@ public class NotesDetailActivity extends AppCompatActivity {
 
     }
 
-    private void sendAudioBroadcast(String url) {
-        Intent audioBroadcastIntent = new Intent("mic_click");
-        audioBroadcastIntent.putExtra("mp3Url", url);
-        sendBroadcast(audioBroadcastIntent);
-    }
 
     private void setWindowBg() {
         WallpaperManager wallpaperManager = WallpaperManager.getInstance(this);
@@ -107,6 +134,41 @@ public class NotesDetailActivity extends AppCompatActivity {
 
         Drawable drawable = new BitmapDrawable(getResources(), BlurBuilder.blur(mActivity, BlurBuilder.drawableToBitmap(wallpaperDrawable)));
         findViewById(R.id.ll_parent).setBackground(drawable);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.iv_edit_highlighter_color:
+                openColorPiker();
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void openColorPiker() {
+        ColorPickerDialog dialog = ColorPickerDialog.newInstance(
+                ColorPickerDialog.SELECTION_SINGLE,
+                closestColorsList,
+                3,
+                ColorPickerDialog.SIZE_SMALL);
+        dialog.setDefaultColor(sharedPreferenceManager.getInt(SharedPreferenceManager.HIGHLIGHTER_COLOR,0));
+
+        dialog.setOnDialodButtonListener(new ColorPickerDialog.OnDialogButtonListener() {
+            @Override
+            public void onDonePressed(ArrayList<Integer> mSelectedColors) {
+                sharedPreferenceManager.setInt(SharedPreferenceManager.HIGHLIGHTER_COLOR,mSelectedColors.get(0));
+                setHeighlightImageColor();
+            }
+
+            @Override
+            public void onDismiss() {
+
+            }
+        });
+
+        dialog.show(getFragmentManager(), "some_tag");
     }
 
 

@@ -4,4 +4,7 @@
     <string name="snackbar_item_deleted">%1$s deleted</string>
     <string name="snackbar_undo_item_deleted">Undo</string>
 
+    <string name="color_picker_default_title">Select a Color</string>
+    <string name="color_picker_default_title_multiselect">Select Colors</string>
+
 </resources>

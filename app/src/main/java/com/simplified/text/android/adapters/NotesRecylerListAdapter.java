@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,49 +11,47 @@ import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.simplified.text.android.Activities.MeaningDetailActivity;
 import com.simplified.text.android.R;
 import com.simplified.text.android.db.DBHelper;
 import com.simplified.text.android.interfaces.DashbordActivityEventsListener;
-import com.simplified.text.android.models.MeaningModel;
-import com.simplified.text.android.models.Pronunciations;
-import com.simplified.text.android.models.Result;
+import com.simplified.text.android.models.NotesModel;
 import com.simplified.text.android.utils.AppUtils;
+import com.simplified.text.android.utils.HtmlUtil;
 import com.simplified.text.android.utils.ResizeWidthAnimation;
 
 import java.util.List;
 
 
-public class MeaningRecylerListAdapter extends RecyclerView.Adapter implements DashbordActivityEventsListener {
-    private final List<MeaningModel> mMeaningList;
+public class NotesRecylerListAdapter extends RecyclerView.Adapter implements DashbordActivityEventsListener {
+    private final List<NotesModel> mNotesList;
     private Activity mActivity;
     private LayoutInflater mInflater;
     private boolean isInEditMode = false;
     private boolean isAnimating = false;
     private int mLastDeletedPosition = -1;
-    private MeaningModel mLastDeletedMeaning = null;
+    private NotesModel mLastDeletedNote = null;
     private DBHelper dbHelper;
     private Handler handler;
     private View rootViewForSnakbar;
     private Snackbar snackbar;
 
-    public MeaningRecylerListAdapter(Activity activity, List<MeaningModel> meaningList) {
+    public NotesRecylerListAdapter(Activity activity, List<NotesModel> notesList) {
         mActivity = activity;
         mInflater = mActivity.getLayoutInflater();
-        mMeaningList = meaningList;
+        mNotesList = notesList;
         dbHelper = new DBHelper(mActivity, DBHelper.DATABASE_NAME,
                 null, DBHelper.DATABASE_VERSION);
     }
 
     @Override
     public int getItemCount() {
-        return mMeaningList.size();
+        return mNotesList.size();
 
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = mInflater.inflate(R.layout.child_meaning_list, parent, false);
+        View itemView = mInflater.inflate(R.layout.child_notes_list, parent, false);
         rootViewForSnakbar = parent;
         return new ViewHolderListItem(itemView);
     }
@@ -62,37 +59,13 @@ public class MeaningRecylerListAdapter extends RecyclerView.Adapter implements D
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
         ViewHolderListItem listHolder = (ViewHolderListItem) holder;
-        final MeaningModel meaningModel = mMeaningList.get(position);
-        listHolder.tvWord.setText(meaningModel.word);
-        listHolder.tvPartOfSpeech.setText("");
-        listHolder.tvFirstMeaning.setText("");
+        final NotesModel noteModel = mNotesList.get(position);
+        listHolder.tvNote.setText(HtmlUtil.fromHtml(noteModel.notes).toString());
+        listHolder.tvDate.setText(noteModel.date);
 
         final View view = holder.itemView;
         final int itemPosition = position;
-        if (meaningModel.results != null) {
-            for (Result result : meaningModel.results) {
-                if (TextUtils.isEmpty(result.meaning)) {
-                    continue;
-                } else {
-                    String partOfSpeech = "";
-                    if (result.pronunciations != null && result.pronunciations.size() > 0) {
-                        for (Pronunciations pronunciations : result.pronunciations) {
-                            if (!TextUtils.isEmpty(pronunciations.ipa)) {
-                                partOfSpeech = "|" + pronunciations.ipa + "| ";
-                                break;
-                            }
-                        }
-                    }
-                    if (!TextUtils.isEmpty(result.part_of_speech)) {
-                        partOfSpeech = partOfSpeech + result.part_of_speech;
-                    }
 
-                    listHolder.tvPartOfSpeech.setText(partOfSpeech);
-                    listHolder.tvFirstMeaning.setText(result.meaning);
-                    break;
-                }
-            }
-        }
         listHolder.ivDelete.setVisibility(View.VISIBLE);
         listHolder.ivNext.setVisibility(View.VISIBLE);
         if (isAnimating) {
@@ -183,12 +156,12 @@ public class MeaningRecylerListAdapter extends RecyclerView.Adapter implements D
             public void onClick(View nview) {
                 nview.setOnClickListener(null);
                 try {
-                    if (mLastDeletedMeaning != null) {
-                        deleteMeaningFromDb(mLastDeletedMeaning);
+                    if (mLastDeletedNote != null) {
+                        deleteNoteFromDb(mLastDeletedNote);
                     }
                     mLastDeletedPosition = itemPosition;
-                    mLastDeletedMeaning = meaningModel;
-                    mMeaningList.remove(mLastDeletedMeaning);
+                    mLastDeletedNote = noteModel;
+                    mNotesList.remove(mLastDeletedNote);
                     notifyItemRemoved(mLastDeletedPosition);
                     new Handler().postDelayed(new Runnable() {
                         @Override
@@ -196,7 +169,7 @@ public class MeaningRecylerListAdapter extends RecyclerView.Adapter implements D
                             notifyDataSetChanged();
                         }
                     }, 500);
-                    showSnackbar(rootViewForSnakbar, mLastDeletedMeaning.word);
+                    showSnackbar(rootViewForSnakbar, mLastDeletedNote.notes);
                 } catch (Exception ex) {
                 }
             }
@@ -207,7 +180,7 @@ public class MeaningRecylerListAdapter extends RecyclerView.Adapter implements D
             @Override
             public void onClick(View view) {
                 if (!isInEditMode) {
-                    MeaningDetailActivity.open(mActivity, meaningModel);
+//                    MeaningDetailActivity.open(mActivity, noteModel);
                 }
             }
         });
@@ -216,54 +189,58 @@ public class MeaningRecylerListAdapter extends RecyclerView.Adapter implements D
 
 
     private class ViewHolderListItem extends RecyclerView.ViewHolder {
-        private TextView tvWord, tvPartOfSpeech, tvFirstMeaning;
+        private TextView tvNote, tvDate;
         private ImageView ivDelete, ivNext;
 
         public ViewHolderListItem(View itemView) {
             super(itemView);
-            tvWord = (TextView) itemView.findViewById(R.id
-                    .tv_child_meaning_list_word_text);
+            tvNote = (TextView) itemView.findViewById(R.id
+                    .tv_child_note_list_note);
 
-            tvPartOfSpeech = (TextView) itemView.findViewById(R.id
-                    .tv_child_meaning_list_part_of_speech_text);
-            tvFirstMeaning = (TextView) itemView.findViewById(R.id
-                    .tv_child_meaning_list_word_first_meaning);
+            tvDate = (TextView) itemView.findViewById(R.id
+                    .tv_child_note_list_date);
 
-            ivDelete = (ImageView) itemView.findViewById(R.id.iv_child_meaning_list_delete);
-            ivNext = (ImageView) itemView.findViewById(R.id.iv_child_meaning_list_next);
+            ivDelete = (ImageView) itemView.findViewById(R.id.iv_child_note_list_delete);
+            ivNext = (ImageView) itemView.findViewById(R.id.iv_child_note_list_next);
 
         }
     }
 
 
-    private void deleteMeaningFromDb(MeaningModel word) {
+    private void deleteNoteFromDb(NotesModel note) {
 
-        if (mLastDeletedMeaning != null) {
+        if (mLastDeletedNote != null) {
             dbHelper.getWritableDatabase();
             dbHelper.CreateTable();
-            dbHelper.removeWord(word.id);
+            dbHelper.removeNote(note.notesId);
             dbHelper.close();
 
-            mLastDeletedMeaning = null;
+            mLastDeletedNote = null;
             mLastDeletedPosition = -1;
         }
     }
 
-    private void showSnackbar(View rootView, final String word) {
+    final
+    private void showSnackbar(View rootView, String note) {
+
+        String stringToShow = HtmlUtil.fromHtml(note).toString();
+        if (stringToShow.length() > 0) {
+            stringToShow = stringToShow.substring(0, 30) + "...";
+        }
         String message = mActivity.getString(R.string.snackbar_item_deleted,
-                word);
+                stringToShow);
         snackbar = Snackbar.make(rootView, message, 2900);
         snackbar.setAction(R.string.snackbar_undo_item_deleted, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mLastDeletedMeaning != null) {
-                    mMeaningList.add(mLastDeletedPosition, mLastDeletedMeaning);
+                if (mLastDeletedNote != null) {
+                    mNotesList.add(mLastDeletedPosition, mLastDeletedNote);
                     if (mLastDeletedPosition == 0 || mLastDeletedPosition == getItemCount() - 1) {
                         ((RecyclerView) rootViewForSnakbar).scrollToPosition(mLastDeletedPosition);
                     }
                     notifyItemInserted(mLastDeletedPosition);
                     mLastDeletedPosition = -1;
-                    mLastDeletedMeaning = null;
+                    mLastDeletedNote = null;
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
@@ -285,7 +262,7 @@ public class MeaningRecylerListAdapter extends RecyclerView.Adapter implements D
             @Override
             public void run() {
 
-                deleteMeaningFromDb(mLastDeletedMeaning);
+                deleteNoteFromDb(mLastDeletedNote);
 
 
             }
@@ -304,8 +281,8 @@ public class MeaningRecylerListAdapter extends RecyclerView.Adapter implements D
     @Override
     public void pageChanged() {
         try {
-            if (mLastDeletedMeaning != null) {
-                deleteMeaningFromDb(mLastDeletedMeaning);
+            if(mLastDeletedNote!=null) {
+                deleteNoteFromDb(mLastDeletedNote);
             }
             snackbar.dismiss();
         } catch (Exception ex) {

@@ -193,6 +193,44 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
+    public List<NotesModel> getNotesList(String noteId) {
+        List<NotesModel> meaningList = new ArrayList<NotesModel>();
+        Cursor noteTableCursor = null;
+        if (TextUtils.isEmpty(noteId)) {
+            noteTableCursor = dba.rawQuery("SELECT * FROM " + notes_table + "  order" +
+                            " by " + notes_id + " DESC",
+                    null);
+        } else {
+            noteTableCursor = dba.rawQuery("SELECT * FROM " + notes_table + " where " +
+                            notes_id + " = '" + noteId + "' order" +
+                            " by " + notes_id + " ASC",
+                    null);
+        }
+
+
+        if (noteTableCursor.moveToFirst()) {
+            do {
+                NotesModel notesModel = new NotesModel();
+
+                notesModel.notesId = noteTableCursor.getString(noteTableCursor.getColumnIndex(notes_id));
+                notesModel.notes= noteTableCursor.getString(noteTableCursor.getColumnIndex(notes));
+                notesModel.date= noteTableCursor.getString(noteTableCursor.getColumnIndex(date));
+                notesModel.isHtml= noteTableCursor.getString(noteTableCursor.getColumnIndex(isHtml));
+
+                meaningList.add(notesModel);
+            } while (noteTableCursor.moveToNext());
+        }
+
+        noteTableCursor.close();
+
+        return meaningList;
+    }
+
+    public void removeNote(String noteId) {
+        dba.execSQL("DELETE FROM " + notes_table + " WHERE " + notes_id + " = " + Long.parseLong(noteId) + "");
+    }
+
+
     public List<MeaningModel> getWordMeaningList(String mWord) {
         List<MeaningModel> meaningList = new ArrayList<MeaningModel>();
         try {

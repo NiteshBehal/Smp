@@ -30,7 +30,7 @@ public class MeaningFragment extends Fragment implements DashbordActivityEventsL
     private RecyclerView rvMeaningList;
 
 
-    public static MeaningFragment newInstance(int page, String title) {
+    public static MeaningFragment newInstance() {
         MeaningFragment fragmentFirst = new MeaningFragment();
         return fragmentFirst;
     }
@@ -94,7 +94,6 @@ public class MeaningFragment extends Fragment implements DashbordActivityEventsL
 
     @Override
     public void pageChanged() {
-        // TODO: have to check if needed or not in any condition
-//        getMeaningListFromDb();
+        meaningAdapter.pageChanged();
     }
 }

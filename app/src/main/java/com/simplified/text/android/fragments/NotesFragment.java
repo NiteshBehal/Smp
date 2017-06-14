@@ -12,10 +12,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.simplified.text.android.R;
-import com.simplified.text.android.adapters.MeaningRecylerListAdapter;
+import com.simplified.text.android.adapters.NotesRecylerListAdapter;
 import com.simplified.text.android.db.DBHelper;
 import com.simplified.text.android.interfaces.DashbordActivityEventsListener;
-import com.simplified.text.android.models.MeaningModel;
+import com.simplified.text.android.models.NotesModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,14 +23,14 @@ import java.util.List;
 public class NotesFragment extends Fragment implements DashbordActivityEventsListener {
 
     private DBHelper dbHelper;
-    private List<MeaningModel> meaningList = new ArrayList<>();
-    private MeaningRecylerListAdapter meaningAdapter;
+    private List<NotesModel> notesList = new ArrayList<>();
+    private NotesRecylerListAdapter notesAdapter;
     private View mRootView;
     private Activity mActivity;
-    private RecyclerView rvMeaningList;
+    private RecyclerView rvNotesList;
 
 
-    public static NotesFragment newInstance(int page, String title) {
+    public static NotesFragment newInstance() {
         NotesFragment fragmentFirst = new NotesFragment();
         return fragmentFirst;
     }
@@ -49,48 +49,49 @@ public class NotesFragment extends Fragment implements DashbordActivityEventsLis
         mActivity = getActivity();
         dbHelper = new DBHelper(mActivity, DBHelper.DATABASE_NAME,
                 null, DBHelper.DATABASE_VERSION);
-//        prepareViews();
+        prepareViews();
 
 
     }
 
-   /* private void prepareViews() {
-        rvMeaningList = (RecyclerView) mRootView.findViewById(R.id.rv_meaning_list);
+    private void prepareViews() {
+        rvNotesList = (RecyclerView) mRootView.findViewById(R.id.rv_meaning_list);
 
-        meaningAdapter = new MeaningRecylerListAdapter(mActivity, meaningList);
+        notesAdapter = new NotesRecylerListAdapter(mActivity, notesList);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(mActivity);
-        rvMeaningList.setLayoutManager(mLayoutManager);
-        rvMeaningList.setItemAnimator(new DefaultItemAnimator());
-        rvMeaningList.setAdapter(meaningAdapter);
-    }*/
+        rvNotesList.setLayoutManager(mLayoutManager);
+        rvNotesList.setItemAnimator(new DefaultItemAnimator());
+        rvNotesList.setAdapter(notesAdapter);
+    }
 
     @Override
     public void onStart() {
         super.onStart();
-//        getMeaningListFromDb();
+        getNotesListFromDb();
     }
 
- /*   private void getMeaningListFromDb() {
-        meaningList.clear();
+    private void getNotesListFromDb() {
+        notesList.clear();
         dbHelper.getWritableDatabase();
         dbHelper.CreateTable();
-        if(dbHelper.getWordMeaningList(null)!=null&&dbHelper.getWordMeaningList(null).size()>0)
+        if(dbHelper.getNotesList(null)!=null&&dbHelper.getNotesList(null).size()>0)
         {
-            meaningList.addAll(dbHelper.getWordMeaningList(null));
+            notesList.addAll(dbHelper.getNotesList(null));
         }
 
         dbHelper.close();
-        meaningAdapter.notifyDataSetChanged();
+        notesAdapter.notifyDataSetChanged();
 
-    }*/
+    }
 
     @Override
     public void isEditMode(boolean isEditable) {
-//        meaningAdapter.isEditMode(isEditable);
+        notesAdapter.isEditMode(isEditable);
     }
 
     @Override
     public void pageChanged() {
-//        getMeaningListFromDb();
+//        getNotesListFromDb();
+        notesAdapter.pageChanged();
     }
 }

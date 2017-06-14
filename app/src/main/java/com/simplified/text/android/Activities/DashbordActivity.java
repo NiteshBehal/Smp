@@ -70,8 +70,10 @@ public class DashbordActivity extends AppCompatActivity implements View.OnClickL
             @Override
             public void onPageSelected(int position) {
                 try {
-                    getCurrentListener().pageChanged();
-                    getCurrentListener().isEditMode(isInEditMode);
+                    getCurrentListener(0).pageChanged();
+                    getCurrentListener(0).isEditMode(isInEditMode);
+                    getCurrentListener(1).pageChanged();
+                    getCurrentListener(1).isEditMode(isInEditMode);
                 } catch (Exception ex) {
 
                 }
@@ -107,15 +109,15 @@ public class DashbordActivity extends AppCompatActivity implements View.OnClickL
                 } else {
                     tvEdit.setText("Edit");
                 }
-                getCurrentListener().isEditMode(isInEditMode);
+                getCurrentListener(vpPager.getCurrentItem()).isEditMode(isInEditMode);
                 break;
             default:
                 break;
         }
     }
 
-    private DashbordActivityEventsListener getCurrentListener() {
-        return (DashbordActivityEventsListener) adapterViewPager.instantiateItem(vpPager, vpPager.getCurrentItem());
+    private DashbordActivityEventsListener getCurrentListener(int position) {
+        return (DashbordActivityEventsListener) adapterViewPager.instantiateItem(vpPager, position);
     }
 
 }

@@ -30,7 +30,7 @@ import com.simplified.text.android.utils.BlurBuilder;
 
 public class MeaningDetailActivity extends AppCompatActivity {
 
-    public static final String WORD_KEY = "WORD_KEY";
+    public static final String WORD_KEY = "NOTE_KEY";
     private Activity mActivity;
     private TextView tvTitle;
     private MeaningModel mMeaningModel;

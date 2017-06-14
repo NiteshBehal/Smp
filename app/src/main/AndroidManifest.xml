@@ -35,10 +35,12 @@
             </intent-filter>-->
         </activity>
         <activity
-
             android:name=".Activities.MeaningDetailActivity"
             android:screenOrientation="portrait">
-
+        </activity>
+        <activity
+            android:name=".Activities.NotesDetailActivity"
+            android:screenOrientation="portrait">
         </activity>
         <activity
             android:name=".Activities.SearchPopup"

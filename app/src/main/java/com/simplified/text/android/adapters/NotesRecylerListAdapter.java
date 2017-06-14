@@ -11,6 +11,7 @@ import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.simplified.text.android.Activities.NotesDetailActivity;
 import com.simplified.text.android.R;
 import com.simplified.text.android.db.DBHelper;
 import com.simplified.text.android.interfaces.DashbordActivityEventsListener;
@@ -180,7 +181,7 @@ public class NotesRecylerListAdapter extends RecyclerView.Adapter implements Das
             @Override
             public void onClick(View view) {
                 if (!isInEditMode) {
-//                    MeaningDetailActivity.open(mActivity, noteModel);
+                    NotesDetailActivity.open(mActivity, noteModel);
                 }
             }
         });

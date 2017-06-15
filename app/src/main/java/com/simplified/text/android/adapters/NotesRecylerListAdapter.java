@@ -214,6 +214,7 @@ public class NotesRecylerListAdapter extends RecyclerView.Adapter implements Das
             dbHelper.getWritableDatabase();
             dbHelper.CreateTable();
             dbHelper.removeNote(note.notesId);
+            dbHelper.removeNoteHighlighters(note.notesId);
             dbHelper.close();
 
             mLastDeletedNote = null;

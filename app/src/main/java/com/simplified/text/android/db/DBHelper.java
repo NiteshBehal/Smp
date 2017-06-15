@@ -9,6 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.text.TextUtils;
 
 import com.simplified.text.android.models.Example;
+import com.simplified.text.android.models.HighlighterModel;
 import com.simplified.text.android.models.MeaningModel;
 import com.simplified.text.android.models.NotesModel;
 import com.simplified.text.android.models.Pronunciations;
@@ -33,6 +34,7 @@ public class DBHelper extends SQLiteOpenHelper {
     static String pronunciation_table = "pronunciationsTable";
     static String example_table = "examplesTable";
     static String notes_table = "notesTable";
+    static String notes_highlighter_table = "notesHighlighgterTable";
 
 
     static String word_id = "wordId";
@@ -60,6 +62,11 @@ public class DBHelper extends SQLiteOpenHelper {
     static String notes = "notes";
     static String date = "date";
     static String isHtml = "isHtml";
+
+    static String highlighter_id = "highlighterId";
+    static String start_point = "startPoint";
+    static String end_point = "end_point";
+    static String highlighter_color = "highlighterColor";
 
 
     /*static String product_id = "productId";
@@ -139,6 +146,12 @@ public class DBHelper extends SQLiteOpenHelper {
                 "TEXT )");
 
 
+        dba.execSQL("Create table IF NOT EXISTS " + notes_highlighter_table + "(" + highlighter_id + " INTEGER PRIMARY KEY AUTOINCREMENT " +
+                "NOT NULL,"
+                + notes_id + " TEXT, " + start_point + " INTEGER, " + end_point + " " + " INTEGER, " + highlighter_color +
+                " INTEGER )");
+
+
     }
 
     public void insertNotes(NotesModel notesModel) {
@@ -147,6 +160,15 @@ public class DBHelper extends SQLiteOpenHelper {
         notesTablevalues.put(date, notesModel.date);
         notesTablevalues.put(isHtml, notesModel.isHtml);
         dba.insert(notes_table, null, notesTablevalues);
+    }
+
+    public void insertNoteHighlighter(HighlighterModel highlighterModel) {
+        ContentValues HighlighterTablevalues = new ContentValues();
+        HighlighterTablevalues.put(notes_id, highlighterModel.noteId);
+        HighlighterTablevalues.put(start_point, highlighterModel.startPoint);
+        HighlighterTablevalues.put(end_point, highlighterModel.endPoint);
+        HighlighterTablevalues.put(highlighter_color, highlighterModel.hColor);
+        dba.insert(notes_highlighter_table, null, HighlighterTablevalues);
     }
 
     public void insertWordMeaning(MeaningModel meaningModel) {
@@ -193,6 +215,36 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
+    public List<HighlighterModel> getHighlighterList(String noteId) {
+        List<HighlighterModel> highlighterList = new ArrayList<HighlighterModel>();
+        Cursor highlighterTableCursor = null;
+
+        highlighterTableCursor = dba.rawQuery("SELECT * FROM " + notes_highlighter_table + " where " +
+                        notes_id + " = '" + noteId + "' order" +
+                        " by " + highlighter_id + " ASC",
+                null);
+
+
+        if (highlighterTableCursor.moveToFirst()) {
+            do {
+                HighlighterModel highlighterModel = new HighlighterModel();
+
+                highlighterModel.highlighterId = highlighterTableCursor.getString(highlighterTableCursor.getColumnIndex(highlighter_id));
+                highlighterModel.noteId = highlighterTableCursor.getString(highlighterTableCursor.getColumnIndex(notes_id));
+                highlighterModel.startPoint = highlighterTableCursor.getInt(highlighterTableCursor.getColumnIndex(start_point));
+                highlighterModel.endPoint = highlighterTableCursor.getInt(highlighterTableCursor.getColumnIndex(end_point));
+                highlighterModel.hColor = highlighterTableCursor.getInt(highlighterTableCursor.getColumnIndex(highlighter_color));
+
+                highlighterList.add(highlighterModel);
+            } while (highlighterTableCursor.moveToNext());
+        }
+
+        highlighterTableCursor.close();
+
+        return highlighterList;
+    }
+
+
     public List<NotesModel> getNotesList(String noteId) {
         List<NotesModel> meaningList = new ArrayList<NotesModel>();
         Cursor noteTableCursor = null;
@@ -213,9 +265,9 @@ public class DBHelper extends SQLiteOpenHelper {
                 NotesModel notesModel = new NotesModel();
 
                 notesModel.notesId = noteTableCursor.getString(noteTableCursor.getColumnIndex(notes_id));
-                notesModel.notes= noteTableCursor.getString(noteTableCursor.getColumnIndex(notes));
-                notesModel.date= noteTableCursor.getString(noteTableCursor.getColumnIndex(date));
-                notesModel.isHtml= noteTableCursor.getString(noteTableCursor.getColumnIndex(isHtml));
+                notesModel.notes = noteTableCursor.getString(noteTableCursor.getColumnIndex(notes));
+                notesModel.date = noteTableCursor.getString(noteTableCursor.getColumnIndex(date));
+                notesModel.isHtml = noteTableCursor.getString(noteTableCursor.getColumnIndex(isHtml));
 
                 meaningList.add(notesModel);
             } while (noteTableCursor.moveToNext());
@@ -230,6 +282,14 @@ public class DBHelper extends SQLiteOpenHelper {
         dba.execSQL("DELETE FROM " + notes_table + " WHERE " + notes_id + " = " + Long.parseLong(noteId) + "");
     }
 
+    public void removeNoteHighlighters(String noteId) {
+        dba.execSQL("DELETE FROM " + notes_highlighter_table + " WHERE " + notes_id + " = " + Long.parseLong(noteId) + "");
+    }
+
+    public void removeNoteHighlighter(String highlighterId) {
+
+        dba.execSQL("DELETE FROM " + notes_highlighter_table + " WHERE " + highlighter_id + " = " + Long.parseLong(highlighterId) + "");
+    }
 
     public List<MeaningModel> getWordMeaningList(String mWord) {
         List<MeaningModel> meaningList = new ArrayList<MeaningModel>();

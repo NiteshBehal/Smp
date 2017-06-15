@@ -35,7 +35,6 @@ public class MeaningDetailActivity extends AppCompatActivity {
     private TextView tvTitle;
     private MeaningModel mMeaningModel;
     private LinearLayout llScrollChild;
-    private ActionMode mActionMode;
 
     public static void open(Activity activity, MeaningModel word) {
         Intent intent = new Intent(activity, MeaningDetailActivity.class);
@@ -85,7 +84,7 @@ public class MeaningDetailActivity extends AppCompatActivity {
                 }
                 TextView tvMeaning = (TextView) meaningParent.findViewById(R.id.tv_detail_meaning);
 
-                tvMeaning.setCustomSelectionActionModeCallback(new ActionBarCallbacks());
+//                tvMeaning.setCustomSelectionActionModeCallback(new ActionBarCallbacks());
 
                 tvMeaning.setText(meaning.meaning);
                 if (meaning.example != null && !TextUtils.isEmpty(meaning.example.example)) {
@@ -158,7 +157,7 @@ public class MeaningDetailActivity extends AppCompatActivity {
 
 
 
-    class ActionBarCallbacks implements ActionMode.Callback
+   /* class ActionBarCallbacks implements ActionMode.Callback
     {
 
         @Override
@@ -189,7 +188,7 @@ public class MeaningDetailActivity extends AppCompatActivity {
         public void onDestroyActionMode(ActionMode mode) {
 
         }
-    }
+    }*/
 
 
 

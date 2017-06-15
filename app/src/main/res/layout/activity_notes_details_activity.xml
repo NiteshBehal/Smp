@@ -97,6 +97,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="3dp"
                         android:minLines="2"
+                        android:bufferType="spannable"
+                        android:textIsSelectable="true"
                         android:text=""
                         android:textColor="#88000000"
                         android:textSize="12dp" />

@@ -5,10 +5,17 @@
     tools:context="com.example.letschat"
     >
     <item
-        android:id="@+id/item_search"
+        android:id="@+id/item_highlight"
         android:icon="@android:drawable/ic_menu_search"
         app:showAsAction="ifRoom|withText"
-        android:title="Highlight Text"
+        android:title="Highlight"
+        android:titleCondensed="Delete">
+    </item>
+    <item
+        android:id="@+id/item_unhighlight"
+        android:icon="@android:drawable/ic_menu_search"
+        app:showAsAction="ifRoom|withText"
+        android:title="UnHighlight"
         android:titleCondensed="Delete">
     </item>
    <!-- <item

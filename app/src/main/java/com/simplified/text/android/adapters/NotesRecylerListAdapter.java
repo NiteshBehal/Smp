@@ -138,7 +138,6 @@ public class NotesRecylerListAdapter extends RecyclerView.Adapter implements Das
                 listHolder.ivDelete.setVisibility(View.VISIBLE);
                 listHolder.ivNext.setVisibility(View.GONE);
             } else {
-
                 ResizeWidthAnimation showAnimation = new ResizeWidthAnimation(listHolder.ivNext, (int) AppUtils.pxFromDp(mActivity, 35));
                 showAnimation.setDuration(400);
                 listHolder.ivNext.startAnimation(showAnimation);
@@ -275,13 +274,14 @@ public class NotesRecylerListAdapter extends RecyclerView.Adapter implements Das
     @Override
     public void isEditMode(boolean isEditable) {
         this.isInEditMode = isEditable;
-        notifyDataSetChanged();
         isAnimating = true;
+        notifyDataSetChanged();
 
     }
 
     @Override
     public void pageChanged() {
+        isAnimating = false;
         try {
             if(mLastDeletedNote!=null) {
                 deleteNoteFromDb(mLastDeletedNote);
@@ -290,6 +290,11 @@ public class NotesRecylerListAdapter extends RecyclerView.Adapter implements Das
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    @Override
+    public void performSearch(String searchKey) {
+
     }
 
 

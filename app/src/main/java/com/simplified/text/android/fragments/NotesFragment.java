@@ -67,16 +67,16 @@ public class NotesFragment extends Fragment implements DashbordActivityEventsLis
     @Override
     public void onStart() {
         super.onStart();
-        getNotesListFromDb();
+        getNotesListFromDb("");
     }
 
-    private void getNotesListFromDb() {
+    private void getNotesListFromDb(String searchKey) {
         notesList.clear();
         dbHelper.getWritableDatabase();
         dbHelper.CreateTable();
-        if(dbHelper.getNotesList(null)!=null&&dbHelper.getNotesList(null).size()>0)
+        if(dbHelper.getNotesList(searchKey)!=null&&dbHelper.getNotesList(searchKey).size()>0)
         {
-            notesList.addAll(dbHelper.getNotesList(null));
+            notesList.addAll(dbHelper.getNotesList(searchKey));
         }
 
         dbHelper.close();
@@ -93,5 +93,10 @@ public class NotesFragment extends Fragment implements DashbordActivityEventsLis
     public void pageChanged() {
 //        getNotesListFromDb();
         notesAdapter.pageChanged();
+    }
+
+    @Override
+    public void performSearch(String searchKey) {
+        getNotesListFromDb(searchKey);
     }
 }

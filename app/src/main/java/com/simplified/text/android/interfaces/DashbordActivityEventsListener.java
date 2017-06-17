@@ -10,4 +10,6 @@ public interface DashbordActivityEventsListener {
 
     public void pageChanged();
 
+    public void performSearch(String searchKey);
+
 }

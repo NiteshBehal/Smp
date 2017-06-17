@@ -96,4 +96,27 @@ public class MeaningFragment extends Fragment implements DashbordActivityEventsL
     public void pageChanged() {
         meaningAdapter.pageChanged();
     }
+
+    @Override
+    public void performSearch(String searchKey) {
+        if (searchKey.trim().isEmpty()) {
+            getMeaningListFromDb();
+        } else {
+            searchMeaningFromDb(searchKey);
+        }
+
+    }
+
+    private void searchMeaningFromDb(String searchKey) {
+        meaningList.clear();
+        dbHelper.getWritableDatabase();
+        dbHelper.CreateTable();
+        if (dbHelper.searchMeaningList(searchKey) != null && dbHelper.searchMeaningList(searchKey).size() > 0) {
+            meaningList.addAll(dbHelper.searchMeaningList(searchKey));
+        }
+
+        dbHelper.close();
+        meaningAdapter.notifyDataSetChanged();
+
+    }
 }

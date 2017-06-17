@@ -13,6 +13,13 @@ import android.text.TextUtils;
 import com.simplified.text.android.Receivers.TextCopyReceiver;
 import com.simplified.text.android.utils.HtmlUtil;
 
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.Socket;
+
 public class CBWatcherService extends Service {
     private boolean isFirstTime = true;
 
@@ -77,5 +84,29 @@ public class CBWatcherService extends Service {
         i.putExtra(TextCopyReceiver.TEXT_IS_HTML_KEY, isHtml);
         i.setAction(TextCopyReceiver.CUSTOM_INTENT);
         sendBroadcast(i);
+
+//        sendToLocalServer(text);
+
     }
+
+ /*   private void sendToLocalServer(final String text) {
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+//                    InetAddress serverAddr = InetAddress.getByName("192.168.43.174");
+                    Socket socket = new Socket("192.168.1.15", 8998);
+                    PrintWriter outStream = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream())), true);
+                    outStream.println(text);
+                    outStream.close();
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        thread.start();
+
+
+    }*/
 }

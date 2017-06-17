@@ -22,11 +22,12 @@ import com.simplified.text.android.models.Result;
 import com.simplified.text.android.utils.AppUtils;
 import com.simplified.text.android.utils.ResizeWidthAnimation;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
 public class MeaningRecylerListAdapter extends RecyclerView.Adapter implements DashbordActivityEventsListener {
-    private final List<MeaningModel> mMeaningList;
+    private List<MeaningModel> mMeaningList = new ArrayList<>();
     private Activity mActivity;
     private LayoutInflater mInflater;
     private boolean isInEditMode = false;
@@ -296,13 +297,14 @@ public class MeaningRecylerListAdapter extends RecyclerView.Adapter implements D
     @Override
     public void isEditMode(boolean isEditable) {
         this.isInEditMode = isEditable;
-        notifyDataSetChanged();
         isAnimating = true;
+        notifyDataSetChanged();
 
     }
 
     @Override
     public void pageChanged() {
+        isAnimating = false;
         try {
             if (mLastDeletedMeaning != null) {
                 deleteMeaningFromDb(mLastDeletedMeaning);
@@ -311,6 +313,11 @@ public class MeaningRecylerListAdapter extends RecyclerView.Adapter implements D
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    @Override
+    public void performSearch(String searchKey) {
+
     }
 
 

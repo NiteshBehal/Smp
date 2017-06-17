@@ -245,17 +245,17 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
-    public List<NotesModel> getNotesList(String noteId) {
+    public List<NotesModel> getNotesList(String searchKey) {
         List<NotesModel> meaningList = new ArrayList<NotesModel>();
         Cursor noteTableCursor = null;
-        if (TextUtils.isEmpty(noteId)) {
+        if (TextUtils.isEmpty(searchKey)) {
             noteTableCursor = dba.rawQuery("SELECT * FROM " + notes_table + "  order" +
                             " by " + notes_id + " DESC",
                     null);
         } else {
             noteTableCursor = dba.rawQuery("SELECT * FROM " + notes_table + " where " +
-                            notes_id + " = '" + noteId + "' order" +
-                            " by " + notes_id + " ASC",
+                            notes + " like '" +"%"+ searchKey+"%" + "' order" +
+                            " by " + notes_id + " DESC",
                     null);
         }
 
@@ -309,78 +309,99 @@ public class DBHelper extends SQLiteOpenHelper {
 
             if (wordTableCursor.moveToFirst()) {
                 do {
-
-                    MeaningModel meaningModel = new MeaningModel();
-                    meaningModel.id = String.valueOf(wordTableCursor.getInt(wordTableCursor.getColumnIndex(word_id)));
-                    meaningModel.word = wordTableCursor.getString(wordTableCursor.getColumnIndex(word));
-
-                    Cursor meaningTableCursor = dba.rawQuery("SELECT * FROM " + meaning_table + " where " +
-                                    word_id + " = '" + meaningModel.id + "' order" +
-                                    " by " + meaning_id + " ASC",
-                            null);
-
-                    if (meaningTableCursor.moveToFirst()) {
-                        ArrayList<Result> resultListList = new ArrayList<Result>();
-                        do {
-                            Result meaningResult = new Result();
-                            meaningResult.id = String.valueOf(meaningTableCursor.getInt(meaningTableCursor.getColumnIndex(meaning_id)));
-                            meaningResult.headword = meaningTableCursor.getString(meaningTableCursor.getColumnIndex(headword));
-                            meaningResult.part_of_speech = meaningTableCursor.getString(meaningTableCursor.getColumnIndex(part_of_speech));
-                            meaningResult.meaning = meaningTableCursor.getString(meaningTableCursor.getColumnIndex(meaning));
-
-
-                            Cursor exampleTableCursor = dba.rawQuery("SELECT * FROM " + example_table + " where " +
-                                            meaning_id + " = '" + meaningResult.id + "' order" +
-                                            " by " + example_id + " ASC",
-                                    null);
-                            if (exampleTableCursor.moveToFirst()) {
-                                Example exampleModel = new Example();
-                                exampleModel.id = String.valueOf(exampleTableCursor.getInt(exampleTableCursor.getColumnIndex(example_id)));
-                                exampleModel.example = exampleTableCursor.getString(exampleTableCursor.getColumnIndex(example));
-                                exampleModel.url = exampleTableCursor.getString(exampleTableCursor.getColumnIndex(audio_url));
-                                meaningResult.example = exampleModel;
-                            }
-                            exampleTableCursor.close();
-
-
-                            Cursor PronunciationTableCursor = dba.rawQuery("SELECT * FROM " + pronunciation_table + " where " +
-                                            meaning_id + " = '" + meaningResult.id + "' order" +
-                                            " by " + pronunciation_id + " ASC",
-                                    null);
-                            if (PronunciationTableCursor.moveToFirst()) {
-                                ArrayList<Pronunciations> pronunciationList = new ArrayList<>();
-                                do {
-
-                                    Pronunciations pronunciationsModel = new Pronunciations();
-                                    pronunciationsModel.id = String.valueOf(PronunciationTableCursor.getInt(PronunciationTableCursor.getColumnIndex(pronunciation_id)));
-                                    pronunciationsModel.ipa = PronunciationTableCursor.getString(PronunciationTableCursor.getColumnIndex(ipa));
-                                    pronunciationsModel.lang = PronunciationTableCursor.getString(PronunciationTableCursor.getColumnIndex(lang));
-                                    pronunciationsModel.url = PronunciationTableCursor.getString(PronunciationTableCursor.getColumnIndex(url));
-                                    pronunciationList.add(pronunciationsModel);
-                                } while (PronunciationTableCursor.moveToNext());
-                                meaningResult.pronunciations = pronunciationList;
-                            }
-
-                            PronunciationTableCursor.close();
-
-
-                            resultListList.add(meaningResult);
-                        } while (meaningTableCursor.moveToNext());
-                        meaningModel.results = resultListList;
-                    }
-
-                    meaningTableCursor.close();
-
-
-                    meaningList.add(meaningModel);
-
-
+                    meaningList.add(setMeaningModel(wordTableCursor));
                 } while (wordTableCursor.moveToNext());
             }
             wordTableCursor.close();
         } catch (Exception ignored) {
         }
         return meaningList;
+    }
+
+
+    public List<MeaningModel> searchMeaningList(String mWord) {
+        List<MeaningModel> meaningList = new ArrayList<MeaningModel>();
+        try {
+            Cursor wordTableCursor = null;
+                wordTableCursor = dba.rawQuery("SELECT * FROM " + word_table + " where " +
+                                word + " like '" +mWord+"%" + "' order" +
+                                " by " + word_id + " DESC",
+                        null);
+            if (wordTableCursor.moveToFirst()) {
+                do {
+                    meaningList.add(setMeaningModel(wordTableCursor));
+                } while (wordTableCursor.moveToNext());
+            }
+            wordTableCursor.close();
+        } catch (Exception ignored) {
+        }
+        return meaningList;
+    }
+
+
+    private MeaningModel setMeaningModel(Cursor wordTableCursor) {
+        MeaningModel meaningModel = new MeaningModel();
+        meaningModel.id = String.valueOf(wordTableCursor.getInt(wordTableCursor.getColumnIndex(word_id)));
+        meaningModel.word = wordTableCursor.getString(wordTableCursor.getColumnIndex(word));
+
+        Cursor meaningTableCursor = dba.rawQuery("SELECT * FROM " + meaning_table + " where " +
+                        word_id + " = '" + meaningModel.id + "' order" +
+                        " by " + meaning_id + " ASC",
+                null);
+
+        if (meaningTableCursor.moveToFirst()) {
+            ArrayList<Result> resultListList = new ArrayList<Result>();
+            do {
+                Result meaningResult = new Result();
+                meaningResult.id = String.valueOf(meaningTableCursor.getInt(meaningTableCursor.getColumnIndex(meaning_id)));
+                meaningResult.headword = meaningTableCursor.getString(meaningTableCursor.getColumnIndex(headword));
+                meaningResult.part_of_speech = meaningTableCursor.getString(meaningTableCursor.getColumnIndex(part_of_speech));
+                meaningResult.meaning = meaningTableCursor.getString(meaningTableCursor.getColumnIndex(meaning));
+
+
+                Cursor exampleTableCursor = dba.rawQuery("SELECT * FROM " + example_table + " where " +
+                                meaning_id + " = '" + meaningResult.id + "' order" +
+                                " by " + example_id + " ASC",
+                        null);
+                if (exampleTableCursor.moveToFirst()) {
+                    Example exampleModel = new Example();
+                    exampleModel.id = String.valueOf(exampleTableCursor.getInt(exampleTableCursor.getColumnIndex(example_id)));
+                    exampleModel.example = exampleTableCursor.getString(exampleTableCursor.getColumnIndex(example));
+                    exampleModel.url = exampleTableCursor.getString(exampleTableCursor.getColumnIndex(audio_url));
+                    meaningResult.example = exampleModel;
+                }
+                exampleTableCursor.close();
+
+
+                Cursor PronunciationTableCursor = dba.rawQuery("SELECT * FROM " + pronunciation_table + " where " +
+                                meaning_id + " = '" + meaningResult.id + "' order" +
+                                " by " + pronunciation_id + " ASC",
+                        null);
+                if (PronunciationTableCursor.moveToFirst()) {
+                    ArrayList<Pronunciations> pronunciationList = new ArrayList<>();
+                    do {
+
+                        Pronunciations pronunciationsModel = new Pronunciations();
+                        pronunciationsModel.id = String.valueOf(PronunciationTableCursor.getInt(PronunciationTableCursor.getColumnIndex(pronunciation_id)));
+                        pronunciationsModel.ipa = PronunciationTableCursor.getString(PronunciationTableCursor.getColumnIndex(ipa));
+                        pronunciationsModel.lang = PronunciationTableCursor.getString(PronunciationTableCursor.getColumnIndex(lang));
+                        pronunciationsModel.url = PronunciationTableCursor.getString(PronunciationTableCursor.getColumnIndex(url));
+                        pronunciationList.add(pronunciationsModel);
+                    } while (PronunciationTableCursor.moveToNext());
+                    meaningResult.pronunciations = pronunciationList;
+                }
+
+                PronunciationTableCursor.close();
+
+
+                resultListList.add(meaningResult);
+            } while (meaningTableCursor.moveToNext());
+            meaningModel.results = resultListList;
+        }
+
+        meaningTableCursor.close();
+
+        return meaningModel;
     }
 
 

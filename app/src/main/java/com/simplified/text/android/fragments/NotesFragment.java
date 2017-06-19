@@ -14,11 +14,15 @@ import android.view.ViewGroup;
 import com.simplified.text.android.R;
 import com.simplified.text.android.adapters.NotesRecylerListAdapter;
 import com.simplified.text.android.db.DBHelper;
+import com.simplified.text.android.interfaces.AnimateFabListener;
 import com.simplified.text.android.interfaces.DashbordActivityEventsListener;
 import com.simplified.text.android.models.NotesModel;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.widget.AbsListView.OnScrollListener.SCROLL_STATE_FLING;
+import static android.widget.AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL;
 
 public class NotesFragment extends Fragment implements DashbordActivityEventsListener {
 
@@ -62,6 +66,23 @@ public class NotesFragment extends Fragment implements DashbordActivityEventsLis
         rvNotesList.setLayoutManager(mLayoutManager);
         rvNotesList.setItemAnimator(new DefaultItemAnimator());
         rvNotesList.setAdapter(notesAdapter);
+
+        rvNotesList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+
+                if (newState == SCROLL_STATE_TOUCH_SCROLL || newState == SCROLL_STATE_FLING) {
+                    ((AnimateFabListener)mActivity).hideFab(true);
+
+                } else {
+
+                    ((AnimateFabListener)mActivity).hideFab(false);
+
+                }
+
+            }
+        });
     }
 
     @Override

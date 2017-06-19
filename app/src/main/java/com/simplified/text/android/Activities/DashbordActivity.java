@@ -9,6 +9,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -25,6 +26,7 @@ import com.gigamole.navigationtabstrip.NavigationTabStrip;
 import com.simplified.text.android.R;
 import com.simplified.text.android.Services.CBWatcherService;
 import com.simplified.text.android.adapters.MyPagerAdapter;
+import com.simplified.text.android.interfaces.AnimateFabListener;
 import com.simplified.text.android.interfaces.DashbordActivityEventsListener;
 import com.simplified.text.android.utils.AppUtils;
 import com.simplified.text.android.utils.BlurBuilder;
@@ -40,7 +42,7 @@ import java.util.TimerTask;
  * Created by pbadmin on 8/6/17.
  */
 
-public class DashbordActivity extends AppCompatActivity implements View.OnClickListener {
+public class DashbordActivity extends AppCompatActivity implements View.OnClickListener, AnimateFabListener {
 
     private Activity mActivity;
     private NavigationTabStrip mTopNavigationTabStrip;
@@ -56,6 +58,7 @@ public class DashbordActivity extends AppCompatActivity implements View.OnClickL
     private LinearLayout llTopBar;
     private AppBarLayout.LayoutParams topParams;
     private int mActionBarSize = 0;
+    private FloatingActionButton fabAdd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,15 +91,27 @@ public class DashbordActivity extends AppCompatActivity implements View.OnClickL
         etSearch = (EditText) findViewById(R.id.et_search_view);
         llTopBar = (LinearLayout) findViewById(R.id.ll_top_scroll_bar);
         topParams = (AppBarLayout.LayoutParams) llTopBar.getLayoutParams();
+        fabAdd = (FloatingActionButton)findViewById(R.id.fab_add_new);
 
         etSearch.addTextChangedListener(new TextChangeListener());
         mJJSearchView.setController(new JJChangeArrowController());
         tvEdit.setOnClickListener(this);
         mJJSearchView.setOnClickListener(this);
+        fabAdd.setOnClickListener(this);
 
 
         setupPager();
 
+    }
+
+    @Override
+    public void hideFab(boolean doHide) {
+        if(doHide)
+        {
+            fabAdd.hide();
+        }else {
+            fabAdd.show();
+        }
     }
 
 
@@ -216,6 +231,12 @@ public class DashbordActivity extends AppCompatActivity implements View.OnClickL
 
                 showSearchView(isInSearchMode);
                 animateTabs(isInSearchMode);
+                break;
+            case R.id.fab_add_new:
+                if(vpPager.getCurrentItem()==0)
+                {
+                    MeaningDetailActivity.open(mActivity, null);
+                }
                 break;
 
             default:

@@ -68,7 +68,7 @@ public class TextCopyReceiver extends BroadcastReceiver implements HttpResponseL
                 if (HtmlUtil.isValidURL(string)) {
                     Toast.makeText(mContext, "Is Url", Toast.LENGTH_SHORT).show();
                 } else if (!string.contains(" ")) {
-                    if (!wordExistsInRealm(string)) {
+                    if (!wordExistsInDb(string)) {
                         if (CheckNetworkStatus.isOnline(context)) {
                             try {
                                 getMeaning(string);
@@ -104,7 +104,7 @@ public class TextCopyReceiver extends BroadcastReceiver implements HttpResponseL
     }
 
 
-    private boolean wordExistsInRealm(String word) {
+    private boolean wordExistsInDb(String word) {
 
         ArrayList<MeaningModel> meaningModels = new ArrayList<>();
         dbHelper.getWritableDatabase();

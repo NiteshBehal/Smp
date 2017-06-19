@@ -14,11 +14,15 @@ import android.view.ViewGroup;
 import com.simplified.text.android.R;
 import com.simplified.text.android.adapters.MeaningRecylerListAdapter;
 import com.simplified.text.android.db.DBHelper;
+import com.simplified.text.android.interfaces.AnimateFabListener;
 import com.simplified.text.android.interfaces.DashbordActivityEventsListener;
 import com.simplified.text.android.models.MeaningModel;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static android.widget.AbsListView.OnScrollListener.SCROLL_STATE_FLING;
+import static android.widget.AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL;
 
 public class MeaningFragment extends Fragment implements DashbordActivityEventsListener {
 
@@ -56,12 +60,28 @@ public class MeaningFragment extends Fragment implements DashbordActivityEventsL
 
     private void prepareViews() {
         rvMeaningList = (RecyclerView) mRootView.findViewById(R.id.rv_meaning_list);
-
         meaningAdapter = new MeaningRecylerListAdapter(mActivity, meaningList);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(mActivity);
         rvMeaningList.setLayoutManager(mLayoutManager);
         rvMeaningList.setItemAnimator(new DefaultItemAnimator());
         rvMeaningList.setAdapter(meaningAdapter);
+
+        rvMeaningList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+
+                if (newState == SCROLL_STATE_TOUCH_SCROLL || newState == SCROLL_STATE_FLING) {
+                    ((AnimateFabListener)mActivity).hideFab(true);
+
+                } else {
+
+                    ((AnimateFabListener)mActivity).hideFab(false);
+
+                }
+
+            }
+        });
     }
 
     @Override
